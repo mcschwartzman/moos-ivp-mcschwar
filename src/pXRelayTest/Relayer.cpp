@@ -35,6 +35,7 @@ Relayer::Relayer()
   m_tally_recd = 0;
   m_tally_sent = 0;
   m_iterations = 0;
+  m_count = 0;
 
   m_start_time_postings   = 0;
   m_start_time_iterations = 0;
@@ -51,8 +52,17 @@ bool Relayer::OnNewMail(MOOSMSG_LIST &NewMail)
     
     string key = msg.GetKey();
 
-    if(key == m_incoming_var) 
-      m_tally_recd++;
+    cout << "GOT a variable: " << key << endl;
+
+    if(key == m_incoming_var) {
+      m_tally_recd = m_tally_recd + 1;
+      cout << "iterating var1" << endl;
+    }
+    else if(key == m_incoming_var_2){
+      m_tally_recd = m_tally_recd + 1;
+      cout << "iterating var2" << endl;
+    }
+      
   }
   return(true);
 }
@@ -75,6 +85,8 @@ void Relayer::RegisterVariables()
 {
   if(m_incoming_var != "")
     Register(m_incoming_var, 0);
+  if(m_incoming_var_2 != "")
+    Register(m_incoming_var_2, 0);
 }
 
 
@@ -86,9 +98,12 @@ bool Relayer::Iterate()
   m_iterations++;
 
   unsigned int i, amt = (m_tally_recd - m_tally_sent);
+  cout << "recd: " << m_tally_recd << ", sent: " << m_tally_sent << endl;
   for(i=0; i<amt; i++) {
-    m_tally_sent++;
-    Notify(m_outgoing_var, m_tally_sent);
+    m_count = m_count + 10;
+    cout << "tally sent: " << m_tally_sent << endl;
+    m_tally_sent=m_tally_sent + 1;
+    Notify(m_outgoing_var, m_count);
   }
   
   // If this is the first iteration just note the start time, otherwise
@@ -124,6 +139,8 @@ bool Relayer::Iterate()
 
 bool Relayer::OnStartUp()
 {
+  Notify("PXRELAY_TESTING", "VALID");
+
   STRING_LIST sParams;
   m_MissionReader.GetConfiguration(GetAppName(), sParams);
     
@@ -135,6 +152,8 @@ bool Relayer::OnStartUp()
 
     if(param == "incoming_var")
       m_incoming_var = value;
+    if(param == "incoming_var_2")
+      m_incoming_var_2 = value;
     
     else if(param == "outgoing_var")
       m_outgoing_var = value;

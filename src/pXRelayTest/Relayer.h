@@ -44,8 +44,10 @@ class Relayer : public CMOOSApp
   unsigned long int m_tally_recd;
   unsigned long int m_tally_sent;
   unsigned long int m_iterations;
+  unsigned long int m_count;
 
   std::string       m_incoming_var;
+  std::string       m_incoming_var_2;
   std::string       m_outgoing_var;
 
   double            m_start_time_postings;

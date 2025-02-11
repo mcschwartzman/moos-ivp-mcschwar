@@ -1,0 +1,34 @@
+// MOOS file
+
+ServerHost = localhost
+ServerPort = 9000
+
+//------------------------------------------
+// Antler configuration  block
+ProcessConfig = ANTLER
+{
+  MSBetweenLaunches = 200
+
+  Run = MOOSDB       @ NewConsole = false
+  Run = pXRelayTest      @ NewConsole = false
+  Run = uXMS         @ NewConsole = true
+}
+
+
+//------------------------------------------
+// First pXRelay configuration block
+
+ProcessConfig = pXRelayTest
+{
+   AppTick   = 4
+   CommsTick = 4
+ 
+   OUTGOING_VAR = APPLES
+   INCOMING_VAR = PEARS
+   INCOMING_VAR_2 = TOMATOES
+}
+
+ProcessConfig = uXMS
+{
+    VAR = APPLES, PEARS, TOMATOES, PXRELAY_TESTING
+}

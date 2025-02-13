@@ -14,8 +14,8 @@ Behavior = BHV_SimpleWaypoint
 
   speed      = 2.0   // meters per second
   radius     = 8.0
-  ptx        = 100
-  pty        = -50
+  ptx        = -30
+  pty        = -30
 }
 
 //----------------------------------------------

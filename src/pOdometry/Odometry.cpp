@@ -28,6 +28,11 @@ Odometry::Odometry()
   m_stale_nav = false;
   m_odometry_ready = true;
 
+  // If you'd like to support new units, 
+  // just add their string representation,
+  // and their multiplier from meters (m),
+  // to this hashmap! 
+  // Unsupported units will throw a config warning!
   m_units_map = {
     {"m", 1},
     {"mi", 0.000621371},
@@ -54,6 +59,7 @@ bool Odometry::OnNewMail(MOOSMSG_LIST &NewMail)
   for(p=NewMail.begin(); p!=NewMail.end(); p++) {
     CMOOSMsg &msg = *p;
     string key    = msg.GetKey();
+    string string_value = msg.GetString();
     double value    = msg.GetDouble();
 
 #if 0 // Keep these around just for template
@@ -78,7 +84,10 @@ bool Odometry::OnNewMail(MOOSMSG_LIST &NewMail)
        m_current_y = value;
        m_stale_nav = false;
      }
-
+     else if(key == "ODOMETRY_UPDATES"){
+       cout << "we're gonna update params again" << endl;
+       bool handled = setParam(string_value);
+     }
      else if(key != "APPCAST_REQ") // handled by AppCastingMOOSApp
        reportRunWarning("Unhandled Mail: " + key);
    }
@@ -137,8 +146,9 @@ bool Odometry::Iterate()
   }
   Notify("ODOMETRY_DIST", m_odometry_dist);
 
-  if (m_secondary_multiplier > 0){
-    Notify("ODOMETRY_DIST_" + toupper(m_secondary_units), m_odometry_dist * m_secondary_multiplier);
+  for (int i=0; i<m_additional_units_list.size(); i++){
+    string additional_units = m_additional_units_list[i];
+    Notify("ODOMETRY_DIST_" + toupper(additional_units), m_odometry_dist * m_units_map[additional_units]);
   }
 
   return(true);
@@ -159,33 +169,11 @@ bool Odometry::OnStartUp()
 
   STRING_LIST::iterator p;
   for(p=sParams.begin(); p!=sParams.end(); p++) {
+
     string orig  = *p;
     string line  = *p;
-    string param = tolower(biteStringX(line, '='));
-    string value = line;
-
-    bool handled = false;
-    if(param == "staleness_threshold") {
-
-      if (stoi(value) <= 0) {
-        m_odometry_ready = false;
-        reportConfigWarning("Staleness threshold (" + value + " seconds) invalid!");
-      }
-      else {
-        m_staleness_threshold = stoi(value);
-      }
-      handled = true;
-    }
-    else if(param == "odometry_units") {
-      if (m_units_map.find(value) != m_units_map.end()){
-        m_secondary_multiplier = m_units_map[value];
-        m_secondary_units = value;
-      }
-      else {
-        reportConfigWarning("Invalid secondary units (" + value + ")!");
-      }
-      handled = true;
-    }
+    
+    bool handled = setParam(line);
 
     if(!handled)
       reportUnhandledConfigWarning(orig);
@@ -204,6 +192,7 @@ void Odometry::registerVariables()
   AppCastingMOOSApp::RegisterVariables();
   Register("NAV_X", 0);
   Register("NAV_Y", 0);
+  Register("ODOMETRY_UPDATES", 0);
 }
 
 
@@ -225,6 +214,39 @@ bool Odometry::buildReport()
   return(true);
 }
 
+bool Odometry::setParam(string line){
 
+    string param = tolower(biteStringX(line, '='));
+    string value = line;
 
+    bool handled = false;
+    if(param == "staleness_threshold") {
 
+      if (stoi(value) <= 0) {
+        m_odometry_ready = false;
+        reportConfigWarning("Staleness threshold (" + value + " seconds) invalid!");
+      }
+      else {
+        m_staleness_threshold = stoi(value);
+      }
+      handled = true;
+    }
+    else if(param == "other_odometry_units") {
+
+      // if the new units to use are NOT supported in the hashmap
+      if (m_units_map.find(value) == m_units_map.end()){
+        reportConfigWarning("Invalid additional units (" + value + ")!");
+      }
+      // if the new runtime units are already in list of units to publish
+      else if (find(m_additional_units_list.begin(), m_additional_units_list.end(), value) != m_additional_units_list.end()) {
+        cout << "skipping duplicate units to publish!" << endl;
+      }
+      // we're good, add these new units to the list of units to publish
+      else {
+        m_additional_units_list.push_back(value);
+      }
+      handled = true;
+    }
+
+  return true;
+}

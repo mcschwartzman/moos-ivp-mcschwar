@@ -1,3 +1,8 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% LOG FILE:       ./MOOSLog_17_2_2025_____11_20_53/MOOSLog_17_2_2025_____11_20_53._moos
+%% FILE OPENED ON  Wed Dec 31 19:00:00 1969
+%% LOGSTART             34796185070.859
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 // Alder mission file
 ServerHost = localhost
 ServerPort = 9000
@@ -163,9 +168,9 @@ ProcessConfig = pOdometry
 
   app_logging=log
   staleness_threshold = 10
-  other_odometry_units = mi
+  other_odometry_units = soup
   other_odometry_units = m
-
+  
 }
 
 // plogger stuff
@@ -177,4 +182,5 @@ ProcessConfig = pLogger
   AsyncLog = true
   WildCardLogging = true
 }
+
 

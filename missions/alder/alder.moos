@@ -161,7 +161,10 @@ ProcessConfig = pOdometry
 
   app_logging=log
   staleness_threshold = 10
-  odometry_units = soup
+  other_odometry_units = mi
+  other_odometry_units = m
+  other_odometry_units = km
+
 }
 
 // plogger stuff

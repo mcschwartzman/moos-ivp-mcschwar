@@ -1,3 +1,8 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% LOG FILE:       ./MOOSLog_17_2_2025_____11_21_33/MOOSLog_17_2_2025_____11_21_33._moos
+%% FILE OPENED ON  Wed Dec 31 19:00:00 1969
+%% LOGSTART              34796185877.31
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 // Alder mission file
 ServerHost = localhost
 ServerPort = 9000
@@ -177,4 +182,5 @@ ProcessConfig = pLogger
   AsyncLog = true
   WildCardLogging = true
 }
+
 

@@ -23,6 +23,8 @@ string
 -
 unordered_map
 -
+vector
+-
 MOOS/libMOOS/Thirdparty/AppCasting/AppCastingMOOSApp.h
 /home/mschwartzman/git/moos-ivp-mcschwar/src/pOdometry/MOOS/libMOOS/Thirdparty/AppCasting/AppCastingMOOSApp.h
 

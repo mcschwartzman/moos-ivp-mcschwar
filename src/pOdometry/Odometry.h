@@ -10,6 +10,7 @@
 
 #include <string>
 #include <unordered_map>
+#include <vector>
 
 #include "MOOS/libMOOS/Thirdparty/AppCasting/AppCastingMOOSApp.h"
 
@@ -30,6 +31,7 @@ protected: // Standard AppCastingMOOSApp function to overload
 
 protected:
   void registerVariables();
+  bool setParam(std::string line);
 
 private: // Configuration variables
   int m_staleness_threshold;
@@ -43,8 +45,7 @@ private: // State variables
   double m_time_of_last_location;
   double m_secondary_multiplier;
 
-  std::string m_secondary_units;
-
+  std::vector<std::string> m_additional_units_list;
   std::unordered_map<std::string, double> m_units_map;
 
   bool m_stale_nav;

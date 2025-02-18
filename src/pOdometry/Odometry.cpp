@@ -74,15 +74,17 @@ bool Odometry::OnNewMail(MOOSMSG_LIST &NewMail)
 
      if(key == "NAV_X"){
        m_time_of_last_location = MOOSTime();
-       m_last_x = m_current_x;
-       m_current_x = value;
        m_stale_nav = false;
+
+       // pushes latest x value to x queue, to be processed later in iterate()
+       m_x_queue.push(value);
      }
      else if(key == "NAV_Y"){
        m_time_of_last_location = MOOSTime();
-       m_last_y = m_current_y;
-       m_current_y = value;
        m_stale_nav = false;
+
+      // pushes latest y value to y queue, to be processed later in iterate()
+       m_y_queue.push(value);
      }
      else if(key == "ODOMETRY_UPDATES"){
        cout << "we're gonna update params again" << endl;
@@ -111,11 +113,11 @@ bool Odometry::OnConnectToServer()
 bool Odometry::Iterate()
 {
   AppCastingMOOSApp::Iterate();
-  // Do your thing here!
   AppCastingMOOSApp::PostReport();
 
   double current_time = MOOSTime();
 
+  // create staleness warning, the retractor and reporter input must match
   string m_stale_message = "No NAV data for over " + to_string(m_staleness_threshold) + " seconds!";
 
   if (current_time - m_time_of_last_location > m_staleness_threshold) {
@@ -129,11 +131,21 @@ bool Odometry::Iterate()
     retractRunWarning(m_stale_message);
   }
   
+  // if for some reason we cannot publish odometry (i.e. some bad configs)
   if(!m_odometry_ready){
     return(true);
   }
 
-  if ((m_last_x != 0) && (m_last_y != 0)){
+  if ((m_x_queue.size() > 1) && (m_y_queue.size() > 1)){
+
+    m_last_x = m_current_x;
+    m_last_y = m_current_y;
+
+    m_current_x = m_x_queue.front();
+    m_current_y = m_y_queue.front();
+
+    m_x_queue.pop();
+    m_y_queue.pop();
 
     double diff_x = m_current_x - m_last_x;
     double diff_y = m_current_y - m_last_y;
@@ -146,6 +158,9 @@ bool Odometry::Iterate()
   }
   Notify("ODOMETRY_DIST", m_odometry_dist);
 
+  // for every item in the additional unit list, 
+  // publish the odometry converted from meters
+  // i.e. km would be published to ODOMETRY_DIST_KM
   for (int i=0; i<m_additional_units_list.size(); i++){
     string additional_units = m_additional_units_list[i];
     Notify("ODOMETRY_DIST_" + toupper(additional_units), m_odometry_dist * m_units_map[additional_units]);
@@ -173,6 +188,7 @@ bool Odometry::OnStartUp()
     string orig  = *p;
     string line  = *p;
     
+    // line should be of format key=value for use by setParam method
     bool handled = setParam(line);
 
     if(!handled)
@@ -192,6 +208,8 @@ void Odometry::registerVariables()
   AppCastingMOOSApp::RegisterVariables();
   Register("NAV_X", 0);
   Register("NAV_Y", 0);
+  
+  // variable to receive runtime updates to the config
   Register("ODOMETRY_UPDATES", 0);
 }
 
@@ -205,15 +223,19 @@ bool Odometry::buildReport()
   m_msgs << "File: Odometry.cpp                          " << endl;
   m_msgs << "============================================" << endl;
 
-  ACTable actab(3);
-  actab << "Last NAV_X | Last NAV_Y | ODOMETRY_DIST";
+  ACTable actab(5);
+  actab << "Last NAV_X | Last NAV_Y | ODOMETRY_DIST | X Queue Size | Y Queue Size";
   actab.addHeaderLines();
-  actab << m_last_x << m_last_y << m_odometry_dist;
+  actab << m_last_x << m_last_y << m_odometry_dist << to_string(m_x_queue.size()) << to_string(m_y_queue.size());
   m_msgs << actab.getFormattedString();
 
   return(true);
 }
 
+//---------------------------------------------------------
+// Procedure: setParam(string line)
+// Abstracts out parameter setting for reuse during runtime
+// Input line should be of the format key=value, like in the .moos config
 bool Odometry::setParam(string line){
 
     string param = tolower(biteStringX(line, '='));

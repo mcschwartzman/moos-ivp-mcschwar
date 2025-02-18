@@ -4,7 +4,7 @@ ServerPort = 9000
 Community  = alder
 //----  Next Line was commented and replaced with a command line overload ---- //
 //MOOSTimeWarp = 1    (default)
-MOOSTimeWarp = 20
+MOOSTimeWarp = 10
 
 LatOrigin  = 43.825300 
 LongOrigin = -70.330400 
@@ -165,6 +165,7 @@ ProcessConfig = pOdometry
   staleness_threshold = 10
   other_odometry_units = mi
   other_odometry_units = m
+  other_odometry_units = km
 
 }
 

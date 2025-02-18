@@ -86,8 +86,8 @@ bool Odometry::OnNewMail(MOOSMSG_LIST &NewMail)
       // pushes latest y value to y queue, to be processed later in iterate()
        m_y_queue.push(value);
      }
+     // if we receive an update to the configs
      else if(key == "ODOMETRY_UPDATES"){
-       cout << "we're gonna update params again" << endl;
        bool handled = setParam(string_value);
      }
      else if(key != "APPCAST_REQ") // handled by AppCastingMOOSApp
@@ -113,17 +113,19 @@ bool Odometry::OnConnectToServer()
 bool Odometry::Iterate()
 {
   AppCastingMOOSApp::Iterate();
-  AppCastingMOOSApp::PostReport();
 
+  // capture current time to calculate staleness
   double current_time = MOOSTime();
 
   // create staleness warning, the retractor and reporter input must match
   string m_stale_message = "No NAV data for over " + to_string(m_staleness_threshold) + " seconds!";
 
+  // determine staleness of coordinates
   if (current_time - m_time_of_last_location > m_staleness_threshold) {
     m_stale_nav = true;
   }
 
+  // report a run warning if the coordinates are stale
   if (m_stale_nav) {
     reportRunWarning(m_stale_message);
   }
@@ -138,24 +140,31 @@ bool Odometry::Iterate()
 
   if ((m_x_queue.size() > 1) && (m_y_queue.size() > 1)){
 
+    // buffer the last point
     m_last_x = m_current_x;
     m_last_y = m_current_y;
 
+    // get the oldest point in the queue...
     m_current_x = m_x_queue.front();
     m_current_y = m_y_queue.front();
 
+    // ... and remove it from the queue
     m_x_queue.pop();
     m_y_queue.pop();
 
+    // use pythagorean theorm to get 
+    // straight-line distance between 
+    // current and last point 
     double diff_x = m_current_x - m_last_x;
     double diff_y = m_current_y - m_last_y;
 
     double x_diff_squared = diff_x * diff_x;
     double y_diff_squared = diff_y * diff_y;
-
+    
     m_odometry_dist += sqrt(x_diff_squared + y_diff_squared);
 
   }
+  // publish default odometry distance as meters
   Notify("ODOMETRY_DIST", m_odometry_dist);
 
   // for every item in the additional unit list, 
@@ -165,6 +174,8 @@ bool Odometry::Iterate()
     string additional_units = m_additional_units_list[i];
     Notify("ODOMETRY_DIST_" + toupper(additional_units), m_odometry_dist * m_units_map[additional_units]);
   }
+
+  AppCastingMOOSApp::PostReport();
 
   return(true);
 }
@@ -206,6 +217,7 @@ bool Odometry::OnStartUp()
 void Odometry::registerVariables()
 {
   AppCastingMOOSApp::RegisterVariables();
+  // register for local coordinates
   Register("NAV_X", 0);
   Register("NAV_Y", 0);
   

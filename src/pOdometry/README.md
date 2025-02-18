@@ -25,19 +25,14 @@ The odometry units supported by default include:
 You can also update/add to this app's configs at runtime by posting a `"key=value"` pair to the update variable `ODOMETRY_UPDATES`
 
 ## Known issues
-Without the use of a queue, the app can show some inconsistencies when changing the apptick/commstick in the .moos config. The below experiments were conducted at timewarp=10. The waypoint was at
-```
-  ptx        = -30
-  pty        = -30
-```
-and the vessel started at 0,0.
+The app originally showed some inconsistencies when changing the apptick/commstick in the .moos config. The below experiments were conducted at timewarp=10. The waypoint was at -30, 30 and the vessel started at 0,0. Later, introducing a queue to store buffered coordinates (and then working through the queue in iterate()) *drastically* reduced the issue.
 
-### Without the Queue
+### Without a Queue
 - At apptick/commstick=4 the app showed ~90 meters
 - At apptick/commstick=8 the app showed ~176 meters
 - At apptick/commstick=16 the app showed ~353 meters
 
-### With the Queue
+### With a Queue
 - At apptick/commstick=4 the app showed ~110 meters
 - At apptick/commstick=8 the app showed ~110 meters
 - At apptick/commstick=16 the app showed ~111 meters

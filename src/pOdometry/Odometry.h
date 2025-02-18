@@ -44,16 +44,16 @@ private: // State variables
   double m_current_y;
   double m_odometry_dist;
   double m_time_of_last_location;
-  double m_secondary_multiplier;
+
+  bool m_stale_nav;
+  bool m_odometry_ready;
+
+  std::unordered_map<std::string, double> m_units_map;
 
   std::queue<double> m_x_queue;
   std::queue<double> m_y_queue;
 
   std::vector<std::string> m_additional_units_list;
-  std::unordered_map<std::string, double> m_units_map;
-
-  bool m_stale_nav;
-  bool m_odometry_ready;
 };
 
 #endif 

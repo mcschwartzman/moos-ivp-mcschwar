@@ -1,7 +1,7 @@
 /************************************************************/
-/*    NAME: Mathew Schwartzman                                              */
+/*    NAME: Mathew Schwartzman                              */
 /*    ORGN: MIT, Cambridge MA                               */
-/*    FILE: Odometry.cpp                                        */
+/*    FILE: Odometry.cpp                                    */
 /*    DATE: December 29th, 1963                             */
 /************************************************************/
 
@@ -18,12 +18,14 @@ using namespace std;
 
 Odometry::Odometry()
 {
+  m_staleness_threshold = 10;
+
   m_last_x = 0;
   m_last_y = 0;
   m_current_x = 0;
   m_current_y = 0;
   m_odometry_dist = 0;
-  m_staleness_threshold = 10;
+  m_time_of_last_location = 0;
 
   m_stale_nav = false;
   m_odometry_ready = true;
@@ -118,7 +120,8 @@ bool Odometry::Iterate()
   double current_time = MOOSTime();
 
   // create staleness warning, the retractor and reporter input must match
-  string m_stale_message = "No NAV data for over " + to_string(m_staleness_threshold) + " seconds!";
+  string stale_threshold = to_string(m_staleness_threshold);
+  string stale_message = "No NAV data for over " + stale_threshold + " seconds";
 
   // determine staleness of coordinates
   if (current_time - m_time_of_last_location > m_staleness_threshold) {
@@ -127,10 +130,10 @@ bool Odometry::Iterate()
 
   // report a run warning if the coordinates are stale
   if (m_stale_nav) {
-    reportRunWarning(m_stale_message);
+    reportRunWarning(stale_message);
   }
   else {
-    retractRunWarning(m_stale_message);
+    retractRunWarning(stale_message);
   }
   
   // if for some reason we cannot publish odometry (i.e. some bad configs)
@@ -172,7 +175,8 @@ bool Odometry::Iterate()
   // i.e. km would be published to ODOMETRY_DIST_KM
   for (int i=0; i<m_additional_units_list.size(); i++){
     string additional_units = m_additional_units_list[i];
-    Notify("ODOMETRY_DIST_" + toupper(additional_units), m_odometry_dist * m_units_map[additional_units]);
+    double odometry_value = m_odometry_dist * m_units_map[additional_units];
+    Notify("ODOMETRY_DIST_" + toupper(additional_units), odometry_value);
   }
 
   AppCastingMOOSApp::PostReport();
@@ -258,7 +262,7 @@ bool Odometry::setParam(string line){
 
       if (stoi(value) <= 0) {
         m_odometry_ready = false;
-        reportConfigWarning("Staleness threshold (" + value + " seconds) invalid!");
+        reportConfigWarning("Staleness threshold " + value + " seconds invalid");
       }
       else {
         m_staleness_threshold = stoi(value);

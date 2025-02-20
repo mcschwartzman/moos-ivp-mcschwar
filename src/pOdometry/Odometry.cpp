@@ -92,6 +92,12 @@ bool Odometry::OnNewMail(MOOSMSG_LIST &NewMail)
     // pushes latest y value to y queue, to be processed later in iterate()
       m_y_queue.push(value);
     }
+    else if(key == "RESET_REQUEST"){
+      if (string_value == "true"){
+        cout << "reset request received!" << endl;
+        m_odometry_dist = 0;
+      }
+    }
      // if we receive an update to the configs
      else if(key == "ODOMETRY_UPDATES"){
        bool handled = setParam(string_value);
@@ -230,6 +236,7 @@ void Odometry::registerVariables()
   // register for local coordinates
   Register("NAV_X", 0);
   Register("NAV_Y", 0);
+  Register("RESET_REQUEST", 0);
   
   // variable to receive runtime updates to the config
   Register("ODOMETRY_UPDATES", 0);

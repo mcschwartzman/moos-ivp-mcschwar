@@ -159,7 +159,7 @@ bool Odometry::Iterate()
     m_x_queue.pop();
     m_y_queue.pop();
 
-    // use pythagorean theorm to get 
+    // use pythagorean theorem to get 
     // straight-line distance between 
     // current and last point 
     double diff_x = m_current_x - m_last_x;

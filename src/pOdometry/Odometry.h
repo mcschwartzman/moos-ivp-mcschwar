@@ -40,8 +40,6 @@ private: // Configuration variables
 private: // State variables
   double m_last_x;
   double m_last_y;
-  double m_current_x;
-  double m_current_y;
   double m_odometry_dist;
   double m_time_of_last_location;
 

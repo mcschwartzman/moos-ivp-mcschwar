@@ -26,7 +26,6 @@ Behavior = BHV_Waypoint
   pwt        = 100
   condition  = (RETURN = true) or (ODOMETRY_DIST >= 50)
   condition  = (DEPLOY = true)
-  perpetual  = true
 
   speed      = 2.0
   radius     = 8.0

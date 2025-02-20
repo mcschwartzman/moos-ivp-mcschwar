@@ -22,8 +22,6 @@ Odometry::Odometry()
 
   m_last_x = 0;
   m_last_y = 0;
-  m_current_x = 0;
-  m_current_y = 0;
   m_odometry_dist = 0;
   m_time_of_last_location = 0;
 
@@ -147,34 +145,29 @@ bool Odometry::Iterate()
   }
   
   // if for some reason we cannot publish odometry (i.e. some bad configs)
-  if(!m_odometry_ready){
-    return(true);
-  }
+  // if(!m_odometry_ready){
+  //   return(true);
+  // }
 
-  if ((m_x_queue.size() > 1) && (m_y_queue.size() > 1)){
+  while ((m_x_queue.size() > 1) && (m_y_queue.size() > 1)){
 
-    // buffer the last point
-    m_last_x = m_current_x;
-    m_last_y = m_current_y;
+    // buffer the last point...
+    m_last_x = m_x_queue.front(); //m_current_x;
+    m_last_y = m_y_queue.front(); // m_current_y;
 
-    // get the oldest point in the queue...
-    m_current_x = m_x_queue.front();
-    m_current_y = m_y_queue.front();
-
-    // ... and remove it from the queue
+    // ... and clear the queue
     m_x_queue.pop();
     m_y_queue.pop();
 
     // use pythagorean theorem to get 
     // straight-line distance between 
     // current and last point 
-    double diff_x = m_current_x - m_last_x;
-    double diff_y = m_current_y - m_last_y;
+    double diff_x = m_x_queue.front() - m_last_x;
+    double diff_y = m_y_queue.front() - m_last_y;
 
     double x_diff_squared = diff_x * diff_x;
     double y_diff_squared = diff_y * diff_y;
-    
-    m_odometry_dist += sqrt(x_diff_squared + y_diff_squared);
+    m_odometry_dist = m_odometry_dist + sqrt(x_diff_squared + y_diff_squared);
 
     cout << "odometry_dist: " << m_odometry_dist << endl;
 
@@ -187,7 +180,7 @@ bool Odometry::Iterate()
   // i.e. km would be published to ODOMETRY_DIST_KM
   for (int i=0; i<m_additional_units_list.size(); i++){
     string additional_units = m_additional_units_list[i];
-    double odometry_value = m_odometry_dist * m_units_map[additional_units];
+    double odometry_value = odometry_value + (m_odometry_dist * m_units_map[additional_units]);
     Notify("ODOMETRY_DIST_" + toupper(additional_units), odometry_value);
   }
 
@@ -252,10 +245,10 @@ bool Odometry::buildReport()
   m_msgs << "File: Odometry.cpp                          " << endl;
   m_msgs << "============================================" << endl;
 
-  ACTable actab(5);
-  actab << "Last NAV_X | Last NAV_Y | ODOMETRY_DIST | X Queue Size | Y Queue Size";
+  ACTable actab(6);
+  actab << "Last NAV_X | Last NAV_Y | ODOMETRY_DIST | X Queue Size | Y Queue Size | Odom Ready";
   actab.addHeaderLines();
-  actab << m_last_x << m_last_y << m_odometry_dist << to_string(m_x_queue.size()) << to_string(m_y_queue.size());
+  actab << m_last_x << m_last_y << m_odometry_dist << to_string(m_x_queue.size()) << to_string(m_y_queue.size()) << m_odometry_ready;
   m_msgs << actab.getFormattedString();
 
   return(true);

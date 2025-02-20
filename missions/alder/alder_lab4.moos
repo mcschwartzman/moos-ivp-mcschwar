@@ -29,10 +29,10 @@ ProcessConfig = ANTLER
 
 ProcessConfig = uSimMarineV22
 {
-  AppTick	  = 10
-  CommsTick	= 10
+  AppTick	  = 20
+  CommsTick	= 20
 
-  START_X       = 0
+  START_X       = 50
   START_Y       = 0
   START_SPEED   = 0
   START_HEADING = 180
@@ -157,8 +157,8 @@ ProcessConfig = pNodeReporter
 // pOdometry config block
 ProcessConfig = pOdometry
 {
-  AppTick   = 32
-  CommsTick = 32
+  AppTick   = 1
+  CommsTick = 1
 
   app_logging=log
   staleness_threshold = 10

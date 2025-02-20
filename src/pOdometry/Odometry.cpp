@@ -74,20 +74,24 @@ bool Odometry::OnNewMail(MOOSMSG_LIST &NewMail)
     bool   mstr  = msg.IsString();
 #endif
 
-     if(key == "NAV_X"){
-       m_time_of_last_location = MOOSTime();
-       m_stale_nav = false;
+    if(key == "NAV_X"){
+      m_time_of_last_location = MOOSTime();
+      m_stale_nav = false;
 
-       // pushes latest x value to x queue, to be processed later in iterate()
-       m_x_queue.push(value);
-     }
-     else if(key == "NAV_Y"){
-       m_time_of_last_location = MOOSTime();
-       m_stale_nav = false;
+      cout << "nav_x: " << value << endl;
 
-      // pushes latest y value to y queue, to be processed later in iterate()
-       m_y_queue.push(value);
-     }
+      // pushes latest x value to x queue, to be processed later in iterate()
+      m_x_queue.push(value);
+    }
+    else if(key == "NAV_Y"){
+      m_time_of_last_location = MOOSTime();
+      m_stale_nav = false;
+
+      cout << "nav_y: " << value << endl;
+
+    // pushes latest y value to y queue, to be processed later in iterate()
+      m_y_queue.push(value);
+    }
      // if we receive an update to the configs
      else if(key == "ODOMETRY_UPDATES"){
        bool handled = setParam(string_value);
@@ -165,6 +169,8 @@ bool Odometry::Iterate()
     double y_diff_squared = diff_y * diff_y;
     
     m_odometry_dist += sqrt(x_diff_squared + y_diff_squared);
+
+    cout << "odometry_dist: " << m_odometry_dist << endl;
 
   }
   // publish default odometry distance as meters

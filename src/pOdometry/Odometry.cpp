@@ -145,9 +145,9 @@ bool Odometry::Iterate()
   }
   
   // if for some reason we cannot publish odometry (i.e. some bad configs)
-  // if(!m_odometry_ready){
-  //   return(true);
-  // }
+  if(!m_odometry_ready){
+    return(true);
+  }
 
   while ((m_x_queue.size() > 1) && (m_y_queue.size() > 1)){
 
@@ -180,7 +180,7 @@ bool Odometry::Iterate()
   // i.e. km would be published to ODOMETRY_DIST_KM
   for (int i=0; i<m_additional_units_list.size(); i++){
     string additional_units = m_additional_units_list[i];
-    double odometry_value = odometry_value + (m_odometry_dist * m_units_map[additional_units]);
+    double odometry_value = m_odometry_dist * m_units_map[additional_units];
     Notify("ODOMETRY_DIST_" + toupper(additional_units), odometry_value);
   }
 

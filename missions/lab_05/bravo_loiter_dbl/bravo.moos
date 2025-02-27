@@ -175,8 +175,6 @@ ProcessConfig = pMarineViewer
   // gui_size = small
 
   left_context[return_point]  = RETURN_UPDATE = points=$(XPOS),$(YPOS)
-  left_context[return_point]  = VIEW_POINT = x=$(XPOS),y=$(YPOS),label=return_point
-  left_context[return_point]  = RETURN = true
 
   right_context[return] = DEPLOY=true
   right_context[return] = MOOS_MANUAL_OVERRIDE=false

@@ -14,6 +14,7 @@
 #include <queue>
 
 #include "MOOS/libMOOS/Thirdparty/AppCasting/AppCastingMOOSApp.h"
+#include "NavRecord.h"
 
 class Odometry : public AppCastingMOOSApp
 {
@@ -36,11 +37,14 @@ protected:
 
 private: // Configuration variables
   int m_staleness_threshold;
+  double m_depth_threshold;
 
 private: // State variables
   double m_last_x;
   double m_last_y;
+  double m_last_depth;
   double m_odometry_dist;
+  double m_odometry_dist_at_depth;
   double m_time_of_last_location;
 
   bool m_stale_nav;
@@ -50,6 +54,7 @@ private: // State variables
 
   std::queue<double> m_x_queue;
   std::queue<double> m_y_queue;
+  std::queue<double> m_depth_queue;
 
   std::vector<std::string> m_additional_units_list;
 };

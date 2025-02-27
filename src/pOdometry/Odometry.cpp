@@ -23,7 +23,10 @@ Odometry::Odometry()
   m_last_x = 0;
   m_last_y = 0;
   m_odometry_dist = 0;
+  m_odometry_dist_at_depth = 0;
   m_time_of_last_location = 0;
+
+  m_depth_threshold = 0;
 
   m_stale_nav = false;
   m_odometry_ready = true;
@@ -61,13 +64,13 @@ bool Odometry::OnNewMail(MOOSMSG_LIST &NewMail)
     string key    = msg.GetKey();
     string string_value = msg.GetString();
     double value    = msg.GetDouble();
+    double mtime = msg.GetTime();
 
 #if 0 // Keep these around just for template
     string comm  = msg.GetCommunity();
     double dval  = msg.GetDouble();
     string sval  = msg.GetString(); 
     string msrc  = msg.GetSource();
-    double mtime = msg.GetTime();
     bool   mdbl  = msg.IsDouble();
     bool   mstr  = msg.IsString();
 #endif
@@ -90,10 +93,17 @@ bool Odometry::OnNewMail(MOOSMSG_LIST &NewMail)
     // pushes latest y value to y queue, to be processed later in iterate()
       m_y_queue.push(value);
     }
+    else if(key == "NAV_DEPTH"){
+      m_time_of_last_location = MOOSTime();
+      m_stale_nav = false;
+
+      m_depth_queue.push(value);
+    }
     else if(key == "RESET_REQUEST"){
       if (string_value == "true"){
         cout << "reset request received!" << endl;
         m_odometry_dist = 0;
+        m_odometry_dist_at_depth = 0;
       }
     }
      // if we receive an update to the configs
@@ -144,20 +154,19 @@ bool Odometry::Iterate()
     retractRunWarning(stale_message);
   }
   
-  // if for some reason we cannot publish odometry (i.e. some bad configs)
-  if(!m_odometry_ready){
-    return(true);
-  }
+  // if queues have data and odometry odometry is ready!
 
-  while ((m_x_queue.size() > 1) && (m_y_queue.size() > 1)){
+  while ((m_x_queue.size() > 1) && (m_y_queue.size() > 1) && m_odometry_ready){
 
     // buffer the last point...
-    m_last_x = m_x_queue.front(); //m_current_x;
-    m_last_y = m_y_queue.front(); // m_current_y;
+    m_last_x = m_x_queue.front();
+    m_last_y = m_y_queue.front();
+    m_last_depth = m_depth_queue.front();
 
     // ... and clear the queue
     m_x_queue.pop();
     m_y_queue.pop();
+    m_depth_queue.pop();
 
     // use pythagorean theorem to get 
     // straight-line distance between 
@@ -171,9 +180,13 @@ bool Odometry::Iterate()
 
     cout << "odometry_dist: " << m_odometry_dist << endl;
 
+    if (m_last_depth > m_depth_threshold){
+      m_odometry_dist_at_depth = m_odometry_dist_at_depth + sqrt(x_diff_squared + y_diff_squared);
+    }
   }
   // publish default odometry distance as meters
   Notify("ODOMETRY_DIST", m_odometry_dist);
+  Notify("ODOMETRY_DIST_AT_DEPTH", m_odometry_dist_at_depth);
 
   // for every item in the additional unit list, 
   // publish the odometry converted from meters
@@ -226,12 +239,13 @@ bool Odometry::OnStartUp()
 void Odometry::registerVariables()
 {
   AppCastingMOOSApp::RegisterVariables();
-  // register for local coordinates
+  // register for local nav info
   Register("NAV_X", 0);
   Register("NAV_Y", 0);
+  Register("NAV_DEPTH", 0);
+
+  // register for runtime updates
   Register("RESET_REQUEST", 0);
-  
-  // variable to receive runtime updates to the config
   Register("ODOMETRY_UPDATES", 0);
 }
 
@@ -245,10 +259,10 @@ bool Odometry::buildReport()
   m_msgs << "File: Odometry.cpp                          " << endl;
   m_msgs << "============================================" << endl;
 
-  ACTable actab(6);
-  actab << "Last NAV_X | Last NAV_Y | ODOMETRY_DIST | X Queue Size | Y Queue Size | Odom Ready";
+  ACTable actab(5);
+  actab << "Last NAV_X | Last NAV_Y | ODOMETRY_DIST | ODOMETRY_DIST_AT_DEPTH | Odom Ready";
   actab.addHeaderLines();
-  actab << m_last_x << m_last_y << m_odometry_dist << to_string(m_x_queue.size()) << to_string(m_y_queue.size()) << m_odometry_ready;
+  actab << m_last_x << m_last_y << m_odometry_dist << m_odometry_dist_at_depth <<  m_odometry_ready;
   m_msgs << actab.getFormattedString();
 
   return(true);
@@ -258,7 +272,8 @@ bool Odometry::buildReport()
 // Procedure: setParam(string line)
 // Abstracts out parameter setting for reuse during runtime
 // Input line should be of the format key=value, like in the .moos config
-bool Odometry::setParam(string line){
+// i.e. "other_odometry_units=m"
+bool Odometry::setParam(string line){ 
 
     string param = tolower(biteStringX(line, '='));
     string value = line;
@@ -267,11 +282,22 @@ bool Odometry::setParam(string line){
     if(param == "staleness_threshold") {
 
       if (stoi(value) <= 0) {
-        m_odometry_ready = false;
         reportConfigWarning("Staleness threshold " + value + " seconds invalid");
+        m_odometry_ready = false;
       }
       else {
         m_staleness_threshold = stoi(value);
+      }
+      handled = true;
+    }
+    if(param == "depth_threshold"){
+
+      if (stoi(value) < 0){
+        reportConfigWarning("Depth threshold " + value + " meters invalid");
+        m_odometry_ready = false;
+      }
+      else {
+        m_depth_threshold = stoi(value);
       }
       handled = true;
     }

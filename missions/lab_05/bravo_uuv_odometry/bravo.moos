@@ -255,5 +255,5 @@ ProcessConfig = pOdometry
   other_odometry_units = m
   other_odometry_units = km
 
-  depth_threshold = 0
+  depth_threshold = 25
 }

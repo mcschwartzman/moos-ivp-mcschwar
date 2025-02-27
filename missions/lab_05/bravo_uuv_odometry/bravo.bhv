@@ -4,6 +4,18 @@ initialize   DEPLOY = false
 initialize   RETURN = false
 initialize   LOITER_REGION = west
 
+// not using these modes anymore
+
+set MODE = ACTIVE {
+  DEPLOY = true
+}
+
+set MODE = LOITERING {
+  MODE = ACTIVE
+  ODOMETRY_DIST_AT_DEPTH < 200
+  RETURN = false
+} RETURNING
+
 //----------------------------------------------
 Behavior=BHV_Loiter
 {
@@ -47,8 +59,7 @@ Behavior=BHV_Waypoint
 {
   name      = waypt_return
   pwt       = 100
-  condition = RETURN = true
-  condition = DEPLOY = true
+  condition = ODOMETRY_DIST_AT_DEPTH > 200
   perpetual = true
   updates   = RETURN_UPDATE
   endflag   = RETURN = false

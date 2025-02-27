@@ -6,6 +6,7 @@
 SET(SRC
   Odometry.cpp
   Odometry_Info.cpp
+  NavRecord.cpp
   main.cpp
 )
 

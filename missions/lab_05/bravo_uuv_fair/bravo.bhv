@@ -1,0 +1,129 @@
+//--------    FILE: bravo.bhv   -------------
+
+initialize   DEPLOY = false
+initialize   RETURN = false
+initialize   LOITER_REGION = west
+
+//----------------------------------------------
+Behavior=BHV_Loiter
+{
+  name      = loiter_west
+  pwt       = 100
+  condition = DEPLOY = true
+  condition = LOITER_REGION = west
+  condition = RETURN = false
+  updates   = LOITER_UPDATES
+  endflag   = LOITER_REGION=east
+  perpetual = true
+
+  polygon   = format=radial, pts=8, label=loiter_west, snap=1, radius=30, x=100,y=-75
+  clockwise = false
+  duration  = 150
+  duration_idle_decay = false
+  speed     = 2.5
+}
+
+//----------------------------------------------
+Behavior=BHV_Loiter
+{
+  name      = loiter_east
+  pwt       = 100
+  condition = DEPLOY = true
+  condition = LOITER_REGION = east
+  condition = RETURN = false
+  updates   = LOITER_UPDATES
+  endflag   = LOITER_REGION=west
+  perpetual = true
+
+  polygon   = format=radial, pts=8, label=loiter_east, snap=1, radius=20, x=160,y=-50
+  clockwise = false
+  duration  = 150
+  duration_idle_decay = false
+  speed     = 2.5
+}
+
+//----------------------------------------------
+Behavior=BHV_Waypoint
+{
+  name      = waypt_return
+  pwt       = 100
+  condition = RETURN = true
+  condition = DEPLOY = true
+  perpetual = true
+  updates   = RETURN_UPDATE
+  endflag   = RETURN = false
+  endflag   = DEPLOY = false
+  endflag   = MISSION = complete
+	
+           speed = 2.0
+  capture_radius = 2.0
+     slip_radius = 8.0
+          points = 0,0
+ }
+
+ //----------------------------------------------
+ Behavior=BHV_ConstantDepth
+ {
+  name           = depth_east
+  pwt            = 100
+  condition      = LOITER_REGION=east
+  condition      = DEPLOY=true
+  updates        = EAST_DEPTH_UPDATES
+  perpetual      = true
+  duration       = no-time-limit
+
+  depth          = 10
+ }
+
+//----------------------------------------------
+Behavior=BHV_ConstantDepth
+{
+  name           = depth_west
+  pwt            = 100
+  condition      = LOITER_REGION=west
+  condition      = DEPLOY=true
+  updates        = WEST_DEPTH_UPDATES
+  perpetual      = true
+  duration       = no-time-limit
+
+  depth          = 30
+}
+
+//----------------------------------------------
+Behavior=BHV_ConstantDepth
+{
+  name           = depth_surface
+  pwt            = 100
+  condition      = NEED_FIX=true
+  condition      = DEPLOY=false
+  updates        = WEST_DEPTH_UPDATES
+  perpetual      = true
+  duration       = no-time-limit
+
+  depth          = 0
+}
+
+//----------------------------------------------
+Behavior=BHV_Timer
+{
+  name            = timer_to_surface
+  condition       = DEPLOY=true
+  duration        = 200
+  duration_idle_decay = false
+  endflag         = DEPLOY=false
+  endflag         = NEED_FIX=true
+  perpetual       = true
+}
+
+//----------------------------------------------
+Behavior=BHV_Timer
+{
+  name            = timer_to_get_fix
+  condition       = NEED_FIX=true
+  condition       = NAV_DEPTH < 1
+  duration        = 60
+  duration_idle_decay = false
+  endflag         = DEPLOY=true
+  endflag         = NEED_FIX=false
+  perpetual       = true
+}

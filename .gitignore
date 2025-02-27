@@ -46,6 +46,7 @@
 *._bhv
 targ_*
 .LastOpenedMOOSLogDirectory
+**/.LastOpenedLoggingDirectory
 MOOSLog*/
 Log*/
 XLog*/

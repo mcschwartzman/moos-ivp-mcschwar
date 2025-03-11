@@ -19,6 +19,8 @@ using namespace std;
 PointAssign::PointAssign()
 {
   m_receiving_points = false;
+
+  m_vehicle_colors = {"red", "yellow", "orange", "yellow", "green"};
 }
 
 //---------------------------------------------------------
@@ -56,6 +58,7 @@ bool PointAssign::OnNewMail(MOOSMSG_LIST &NewMail)
       }
       if (sval == "lastpoint"){
         m_receiving_points = false;
+        m_ready_to_assign = true;
       }
       else if (m_receiving_points){
         m_point_queue.push(sval);
@@ -95,38 +98,25 @@ bool PointAssign::Iterate()
 
     XYPoint current_point = string2Point(m_point_queue.front());
     m_points.push_back(current_point);
-    postViewPoint(current_point.x(), current_point.y(), to_string(m_point_queue.size()), "yellow");
+    postViewPoint(current_point.x(), current_point.y(), to_string(m_point_queue.size()), "white");
     m_point_queue.pop();
     
   }
 
-  m_most_west_point = XYPoint(-25, -175); // mostWestPoint(m_points); todo, implement mostWestPoint method
-  m_most_east_point = XYPoint(200, -25);
-
-  double x_range = m_most_east_point.x() - m_most_west_point.x();
-  double vehicle_region_width = x_range / m_vehicles.size();
-
-  for (int i = 0; i<m_points.size(); i++) {
-
-    XYPoint current_point = m_points[i];
-
-    for (int j = 0; j<m_vehicles.size(); j++){
-
-      string color = "white";
-
-      if (j == 1){
-        color = "red";
-      }
-
-      double region_west = m_most_west_point.x() + (vehicle_region_width * j);
-      double region_east = region_west + vehicle_region_width;
-
-      if ((current_point.x() > region_west) && (current_point.x() < region_east)){
-        postViewPoint(current_point.x(), current_point.y(), to_string(i), color);
-      }
-
+  if (m_ready_to_assign){
+    if (m_assign_by_region){
+      regionalAssign(m_points, m_vehicles);
     }
+    else {
+      // assign by alternating
+      alternatingAssign(m_points, m_vehicles);
+    }
+    m_ready_to_assign = false;
   }
+  
+
+
+  
 
 
   AppCastingMOOSApp::PostReport();
@@ -156,10 +146,19 @@ bool PointAssign::OnStartUp()
     bool handled = false;
     if(param == "vname") {
       m_vehicles.push_back(value);
+      m_vehicle_assigned_points.push_back({"firstpoint"});
       handled = true;
     }
-    else if(param == "bar") {
-      handled = true;
+    else if(param == "assign_by_region") {
+      // todo, use a true/false parser utility from somewhere else in moos-ivp
+      if (value == "true"){
+        m_assign_by_region = true;
+        handled = true;
+      }
+      else if (value == "false"){
+        m_assign_by_region = false;
+        handled = true;
+      }
     }
 
     if(!handled)
@@ -227,5 +226,55 @@ XYPoint PointAssign::mostWestPoint(vector<XYPoint> points){
   return current_most_west;
 }
 
+void PointAssign::regionalAssign(vector<XYPoint> points, vector<string> vehicles) {
 
+  m_most_west_point = XYPoint(-25, -175); // mostWestPoint(m_points); todo, implement mostWestPoint method, to find programmatically
+  m_most_east_point = XYPoint(200, -25);
 
+  double x_range = m_most_east_point.x() - m_most_west_point.x();
+  double vehicle_region_width = x_range / vehicles.size();
+
+  for (int i = 0; i<points.size(); i++) {
+
+    XYPoint current_point = points[i];
+
+    for (int j = 0; j<vehicles.size(); j++){
+
+      double region_west = m_most_west_point.x() + (vehicle_region_width * j);
+      double region_east = region_west + vehicle_region_width;
+
+      if ((current_point.x() > region_west) && (current_point.x() < region_east)){
+        postViewPoint(current_point.x(), current_point.y(), to_string(i), m_vehicle_colors[j]);
+        // post message to VISIT_POINT_{vehicles[j]}
+        
+
+        m_vehicle_assigned_points[j].push_back(current_point.get_spec());
+      }
+
+    }
+  }
+  sendAssignMessages(m_vehicle_assigned_points);
+}
+
+void PointAssign::alternatingAssign(vector<XYPoint> points, vector<string> vehicles){
+
+  for (int i=0; i<points.size(); i++) {
+    XYPoint current_point = points[i];
+
+    int vehicle_index = i % vehicles.size();
+
+    postViewPoint(current_point.x(), current_point.y(), to_string(i), m_vehicle_colors[vehicle_index]);
+
+  }
+
+}
+
+void PointAssign::sendAssignMessages(vector<vector<string>> vehicle_assigned_points){
+  for (int i=0; i<vehicle_assigned_points.size(); i++){
+    for (int j=0; j<vehicle_assigned_points[i].size(); j++){
+      string current_point = vehicle_assigned_points[i][j];
+      Notify("VISIT_POINT_" + toupper(m_vehicles[i]), current_point);
+    }
+    Notify("VISIT_POINT_" + toupper(m_vehicles[i]), "lastpoint");
+  }
+}

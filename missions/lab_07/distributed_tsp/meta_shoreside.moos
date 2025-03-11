@@ -117,3 +117,10 @@ ProcessConfig = uProcessWatch
   nowatch   = uTermCommand*
   watch_all = true
 }
+
+ProcessConfig = pRealm
+{
+  hist_var = VISIT_POINT
+	hist_var = VISIT_POINT_HENRY
+  hist_var = VISIT_POINT_GILDA
+}

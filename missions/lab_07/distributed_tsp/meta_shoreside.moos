@@ -45,7 +45,7 @@ ProcessConfig = uFldShoreBroker
   bridge   = src=RETURN_ALL, alias=RETURN
   bridge   = src=RETURN_$V,  alias=RETURN
   bridge   = src=REFUEL_NEEDED_ALL, alias=REFUEL_NEEDED
-  bridge   = src=VISIT_POINT_$V, alias=VISIT_POINT_$V
+  bridge   = src=VISIT_POINT_$V, alias=VISIT_POINT
 }
 
 //--------------------------------------------------------
@@ -95,9 +95,15 @@ ProcessConfig = uTimerScript
   rand_var = varname=RND_X, min=-25, max=200, key=at_post
   rand_var = varname=RND_Y, min=-175, max=-25, key=at_post
 
+  //reset_time = all-posted
+  //reset_max = 100
   event = var=VISIT_POINT, val="firstpoint"
   event = var=VISIT_POINT, val="x=$[RND_X],y=$[RND_Y],id=$[COUNT]", time=0, amt=100
   event = var=VISIT_POINT, val="lastpoint"
+
+  //event = var=VISIT_POINT, val="firstpoint"
+  //event = var=VISIT_POINT, val="x=$[RND_X],y=$[RND_Y],id=$[COUNT]", time=1
+  //event = var=VISIT_POINT, val="lastpoint"
 }
 
 //------------------------------------------
@@ -120,6 +126,8 @@ ProcessConfig = uProcessWatch
 
 ProcessConfig = pRealm
 {
+
+  msg_max_hist = 100 
   hist_var = VISIT_POINT
 	hist_var = VISIT_POINT_HENRY
   hist_var = VISIT_POINT_GILDA

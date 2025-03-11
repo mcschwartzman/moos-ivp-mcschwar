@@ -4,7 +4,7 @@ ProcessConfig = pPointAssign
     CommsTick   = 4
 
     vname       = henry
-    vname       = gilda     
+    vname       = gilda
 
-    assign_by_region = false
+    assign_by_region = true
 }

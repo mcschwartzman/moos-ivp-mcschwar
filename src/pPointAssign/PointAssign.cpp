@@ -265,7 +265,11 @@ void PointAssign::alternatingAssign(vector<XYPoint> points, vector<string> vehic
 
     postViewPoint(current_point.x(), current_point.y(), to_string(i), m_vehicle_colors[vehicle_index]);
 
+    m_vehicle_assigned_points[vehicle_index].push_back(current_point.get_spec());
+
   }
+
+  sendAssignMessages(m_vehicle_assigned_points);
 
 }
 

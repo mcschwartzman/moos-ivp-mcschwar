@@ -6,6 +6,7 @@
 /************************************************************/
 
 #include <iterator>
+#include <limits>
 #include "MBUtils.h"
 #include "ACTable.h"
 #include "GenPath.h"
@@ -65,10 +66,10 @@ bool GenPath::OnNewMail(MOOSMSG_LIST &NewMail)
        }
      }
      else if(key == "NAV_X"){
-       m_current_x.set(dval);
+       m_current_x = dval;
      }
      else if(key == "NAV_Y"){
-       m_current_y.set(dval);
+       m_current_y = dval;
      }
 
      else if(key != "APPCAST_REQ") // handled by AppCastingMOOSApp
@@ -84,6 +85,7 @@ bool GenPath::OnNewMail(MOOSMSG_LIST &NewMail)
 bool GenPath::OnConnectToServer()
 {
    registerVariables();
+   Notify("LISTENING_FOR_POINTS", "true");
    return(true);
 }
 
@@ -103,7 +105,10 @@ bool GenPath::Iterate()
   }
 
   if (m_ready_to_generate_path){
-    sendPath(m_visit_points);
+    vector<XYPoint> greedy_path = generatePath(m_visit_points);
+    cout << "greedy_path: " << greedy_path.size() << endl;
+    sendPath(greedy_path);
+    m_ready_to_generate_path = false;
   }
   AppCastingMOOSApp::PostReport();
   return(true);
@@ -183,28 +188,67 @@ void GenPath::sendPath(std::vector<XYPoint> visit_points){
   for (int i=0; i<visit_points.size(); i++){
     XYPoint current_point = visit_points[i];
 
+    cout << "path point: "<< current_point.x() << ", "<< current_point.y() << endl;
+
     return_path.add_vertex(current_point.x(), current_point.y());
   }
-  string update_string = "points = " + return_path.get_spec();
+  string pts_string = return_path.get_spec();
+  // biteStringX(pts_string, 'pts=');
+  // biteStringX(pts_string, '{');
+  string update_string = "points = " + pts_string;
   Notify("UPDATES_WAYPOINT", update_string);
 }
 
-void GenPath::generatePath(std::vector<XYPoint> visit_points){
+vector<XYPoint> GenPath::generatePath(std::vector<XYPoint> visit_points){
 
-  // create empty sorted list
-  // append current point to sorted list
-  // calculate distance from current point to all points
-  // take least distance point and make that the current point
-  // append current point to sorted list (and so we repeat)
+// create empty path vector
+// first point a is start location
+// 
 
   vector<XYPoint> greedy_path;
 
-  for (int i=0; i<visit_points.size(); i++){
-    XYPoint current_point(m_current_x, m_current_y);
+  XYPoint current_point = XYPoint(m_current_x, m_current_y);
+
+  greedy_path.push_back(current_point);
+
+  while(m_visit_points.size() > 0){
+
+    int best_index = 0;
+    double best_distance = numeric_limits<double>::infinity(); 
+
+    for (int i = 0; i < m_visit_points.size(); i++){
+
+      XYPoint ith_point = m_visit_points[i];
     
+      double distance = pythagorean(current_point, m_visit_points[i]);
+      
+      cout << "current_point: "<< current_point.x() << ", " << current_point.y() << endl;
+      cout << "ith_point: "<< ith_point.x() << ", " << ith_point.y() << endl;
+      cout << "distance: " << distance << ", " << "best_distance: " << best_distance << endl;
+      cout << "visit_points: " << m_visit_points.size() << endl;
+
+      if (distance < best_distance) {
+        best_distance = distance;
+        best_index = i;
+      }
+    }
+
+    // mark this as the next step and remove this point from m_visit_points
+    current_point = m_visit_points[best_index];
+    greedy_path.push_back(current_point);
+    m_visit_points.erase(m_visit_points.begin() + best_index);
   }
+  return greedy_path;
+}
 
-  
+double GenPath::pythagorean(XYPoint a, XYPoint b){
 
+  double diff_x = b.x() - a.x();
+  double diff_y = b.y() - a.y();
 
+  double x_diff_squared = diff_x * diff_x;
+  double y_diff_squared = diff_y * diff_y;
+  double distance = sqrt(x_diff_squared + y_diff_squared);
+
+  return distance;
 }

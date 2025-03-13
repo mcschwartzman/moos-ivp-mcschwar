@@ -32,8 +32,10 @@ class GenPath : public AppCastingMOOSApp
  protected:
    void registerVariables();
 
-   void generatePath(std::vector<XYPoint> visit_points);
+   std::vector<XYPoint> generatePath(std::vector<XYPoint> visit_points);
    void sendPath(std::vector<XYPoint> visit_points);
+
+  double pythagorean(XYPoint a, XYPoint b);
 
  private: // Configuration variables
 

@@ -50,6 +50,8 @@ class PointAssign : public AppCastingMOOSApp
 
   bool m_receiving_points;
   bool m_ready_to_assign;
+  bool m_received_lastpoint;
+  bool m_vehicles_registered;
 
   //oh boy here we go
   std::vector<std::vector<std::string>> m_vehicle_assigned_points;

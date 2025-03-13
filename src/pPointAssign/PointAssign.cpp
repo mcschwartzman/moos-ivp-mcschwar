@@ -58,13 +58,15 @@ bool PointAssign::OnNewMail(MOOSMSG_LIST &NewMail)
       }
       if (sval == "lastpoint"){
         m_receiving_points = false;
-        m_ready_to_assign = true;
+        m_received_lastpoint = true;
       }
       else if (m_receiving_points){
         m_point_queue.push(sval);
         cout << "queue size: " << m_point_queue.size() << endl;
       }
-       
+     }
+     else if(key == "LISTENING_FOR_POINTS"){
+       m_vehicles_registered = true;
      }
 
      else if(key != "APPCAST_REQ") // handled by AppCastingMOOSApp
@@ -92,6 +94,11 @@ bool PointAssign::Iterate()
 {
   AppCastingMOOSApp::Iterate();
   // Do your thing here!
+
+  if (m_vehicles_registered && m_received_lastpoint){
+    m_ready_to_assign = true;
+    m_received_lastpoint = false;
+  }
 
   // while processing queue points
   while(m_point_queue.size() > 0){
@@ -177,6 +184,7 @@ void PointAssign::registerVariables()
 {
   AppCastingMOOSApp::RegisterVariables();
   Register("VISIT_POINT", 0);
+  Register("LISTENING_FOR_POINTS", 0);
 }
 
 
@@ -235,9 +243,7 @@ void PointAssign::regionalAssign(vector<XYPoint> points, vector<string> vehicles
   double vehicle_region_width = x_range / vehicles.size();
 
   for (int i = 0; i<points.size(); i++) {
-
     XYPoint current_point = points[i];
-
     for (int j = 0; j<vehicles.size(); j++){
 
       double region_west = m_most_west_point.x() + (vehicle_region_width * j);
@@ -246,11 +252,8 @@ void PointAssign::regionalAssign(vector<XYPoint> points, vector<string> vehicles
       if ((current_point.x() > region_west) && (current_point.x() < region_east)){
         postViewPoint(current_point.x(), current_point.y(), to_string(i), m_vehicle_colors[j]);
         // post message to VISIT_POINT_{vehicles[j]}
-        
-
         m_vehicle_assigned_points[j].push_back(current_point.get_spec());
       }
-
     }
   }
   sendAssignMessages(m_vehicle_assigned_points);

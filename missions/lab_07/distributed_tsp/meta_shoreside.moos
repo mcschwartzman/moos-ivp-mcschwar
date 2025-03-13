@@ -39,13 +39,15 @@ ProcessConfig = uFldShoreBroker
   CommsTick     = 1
 
   qbridge  = DEPLOY, NODE_REPORT
-  qbridge  = STATION_KEEP, APPCAST_REQ
+  qbridge  = APPCAST_REQ
   qbridge  = MOOS_MANUAL_OVERRIDE
 
+  bridge   = src=STATION_KEEP_ALL, alias=STATION_KEEP
   bridge   = src=RETURN_ALL, alias=RETURN
   bridge   = src=RETURN_$V,  alias=RETURN
   bridge   = src=REFUEL_NEEDED_ALL, alias=REFUEL_NEEDED
   bridge   = src=VISIT_POINT_$V, alias=VISIT_POINT
+
 }
 
 //--------------------------------------------------------
@@ -77,7 +79,8 @@ ProcessConfig = pMarineViewer
 
   button_one   = DEPLOY  # DEPLOY_ALL=true 
   button_one   = MOOS_MANUAL_OVERRIDE_ALL=false 
-  button_one   = RETURN_ALL=false # STATION_KEEP_ALL=false
+  button_one   = RETURN_ALL=false
+  button_one   = STATION_KEEP_ALL=false
 
   button_two   = RETURN  # RETURN_ALL=true
   button_two   = STATION_KEEP_ALL=false

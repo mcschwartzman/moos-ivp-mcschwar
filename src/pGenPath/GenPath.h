@@ -39,15 +39,24 @@ class GenPath : public AppCastingMOOSApp
 
  private: // Configuration variables
 
+  double m_visit_radius;
+
  private: // State variables
   std::queue<std::string> m_point_strings;
   std::vector<XYPoint> m_visit_points;
+  std::vector<XYPoint> m_path;
+  std::vector<XYPoint> m_missed_waypoints;
 
   double m_current_x;
   double m_current_y;
 
-  int m_current_wpt;
-
+  int m_next_wpt;
+  
+  bool m_ready_to_visit;
+  bool m_received_x;
+  bool m_received_y;
+  bool m_successfully_visited;
+  bool m_new_wpt;
   bool m_receiving_points;
   bool m_ready_to_generate_path;
 };

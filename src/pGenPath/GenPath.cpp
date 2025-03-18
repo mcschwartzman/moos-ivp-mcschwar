@@ -22,6 +22,15 @@ GenPath::GenPath()
 {
   m_current_x = 0;
   m_current_y = 0;
+
+  m_visit_radius = 0;
+
+  m_next_wpt = 0;
+  m_ready_to_visit = false;
+  m_received_x = false;
+  m_received_y = false;
+  m_new_wpt = false;
+  m_successfully_visited = false;
 }
 
 //---------------------------------------------------------
@@ -67,12 +76,19 @@ bool GenPath::OnNewMail(MOOSMSG_LIST &NewMail)
      }
      else if(key == "NAV_X"){
        m_current_x = dval;
+       m_received_x = true;
      }
      else if(key == "NAV_Y"){
        m_current_y = dval;
+       m_received_y = true;
      }
-     else if(key == "WPT_INDEX"){
-       m_current_wpt = dval;
+     else if(key == "WPT_INDEX_VISIT"){
+       // relies on a waypoint behavior tagged with the _VISIT suffix
+       m_new_wpt = true;
+       m_next_wpt = dval;
+       m_successfully_visited = false;
+
+
      }
 
      else if(key != "APPCAST_REQ") // handled by AppCastingMOOSApp
@@ -108,11 +124,34 @@ bool GenPath::Iterate()
   }
 
   if (m_ready_to_generate_path){
-    vector<XYPoint> greedy_path = generatePath(m_visit_points);
-    cout << "greedy_path: " << greedy_path.size() << endl;
-    sendPath(greedy_path);
+    m_path = generatePath(m_visit_points);
+    cout << "path length: " << m_path.size() << endl;
+    sendPath(m_path);
+    m_ready_to_visit = true;
     m_ready_to_generate_path = false;
   }
+
+  if (m_ready_to_visit && m_received_x && m_received_y){
+
+    XYPoint current_location(m_current_x, m_current_y);
+    double distance_to_next = pythagorean(m_path[m_next_wpt], current_location);
+    if (distance_to_next <= m_visit_radius){
+      // if our distance is less than configured visit radius
+      m_successfully_visited = true;
+    }
+    //else we never successfully visited
+
+    if (m_new_wpt){
+      if (!m_successfully_visited){
+        m_missed_waypoints.push_back(m_path[m_next_wpt]);
+      }
+      m_new_wpt = false; 
+    }
+
+  }
+
+
+
   AppCastingMOOSApp::PostReport();
   return(true);
 }
@@ -138,7 +177,8 @@ bool GenPath::OnStartUp()
     string value = line;
 
     bool handled = false;
-    if(param == "foo") {
+    if(param == "visit_radius") {
+      m_visit_radius = stod(value);
       handled = true;
     }
     else if(param == "bar") {
@@ -163,7 +203,7 @@ void GenPath::registerVariables()
   Register("VISIT_POINT", 0);
   Register("NAV_X", 0);
   Register("NAV_Y", 0);
-  Register("WPT_INDEX", 0);
+  Register("WPT_INDEX_VISIT", 0);
 }
 
 
@@ -177,9 +217,9 @@ bool GenPath::buildReport()
   m_msgs << "============================================" << endl;
 
   ACTable actab(4);
-  actab << "Pts Recvd | Bravo | Charlie | Delta";
+  actab << "Pts Recvd | Pts Missed | Wpt Idx | Delta";
   actab.addHeaderLines();
-  actab << to_string(m_visit_points.size()) << "two" << "three" << "four";
+  actab << to_string(m_path.size()) << to_string(m_missed_waypoints.size()) << to_string(m_next_wpt) << "four";
   m_msgs << actab.getFormattedString();
 
   return(true);

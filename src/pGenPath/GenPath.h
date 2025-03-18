@@ -52,6 +52,7 @@ class GenPath : public AppCastingMOOSApp
 
   int m_next_wpt;
   
+  bool m_genpath_regenerate;
   bool m_ready_to_visit;
   bool m_received_x;
   bool m_received_y;

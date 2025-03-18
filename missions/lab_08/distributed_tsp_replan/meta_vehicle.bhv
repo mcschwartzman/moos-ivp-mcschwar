@@ -45,8 +45,11 @@ Behavior = BHV_Waypoint
   condition = (MODE==VISITING)
   endflag   = STATION_KEEP = true
   endflag   = RETURN = false
+  endflag   = GENPATH_REGENERATE = true
   updates   = UPDATES_WAYPOINT
   perpetual = true
+  capture_radius = 5
+  slip_radius = 40
   post_suffix = _VISIT
 
       speed = 1.3

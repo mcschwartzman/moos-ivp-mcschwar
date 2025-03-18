@@ -31,6 +31,7 @@ GenPath::GenPath()
   m_received_y = false;
   m_new_wpt = false;
   m_successfully_visited = false;
+  m_genpath_regenerate = false;
 }
 
 //---------------------------------------------------------
@@ -87,8 +88,9 @@ bool GenPath::OnNewMail(MOOSMSG_LIST &NewMail)
        m_new_wpt = true;
        m_next_wpt = dval;
        m_successfully_visited = false;
-
-
+     }
+     else if(key == "GENPATH_REGENERATE"){
+       m_genpath_regenerate = true;
      }
 
      else if(key != "APPCAST_REQ") // handled by AppCastingMOOSApp
@@ -123,9 +125,16 @@ bool GenPath::Iterate()
     m_point_strings.pop();
   }
 
+  if (m_genpath_regenerate){
+    m_visit_points = m_missed_waypoints;
+    m_missed_waypoints.clear();
+    m_ready_to_visit = false;
+    m_ready_to_generate_path = true;
+    m_genpath_regenerate = false;
+  }
+
   if (m_ready_to_generate_path){
     m_path = generatePath(m_visit_points);
-    cout << "path length: " << m_path.size() << endl;
     sendPath(m_path);
     m_ready_to_visit = true;
     m_ready_to_generate_path = false;
@@ -204,6 +213,7 @@ void GenPath::registerVariables()
   Register("NAV_X", 0);
   Register("NAV_Y", 0);
   Register("WPT_INDEX_VISIT", 0);
+  Register("GENPATH_REGENERATE", 0);
 }
 
 

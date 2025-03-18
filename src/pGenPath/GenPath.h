@@ -46,6 +46,8 @@ class GenPath : public AppCastingMOOSApp
   double m_current_x;
   double m_current_y;
 
+  int m_current_wpt;
+
   bool m_receiving_points;
   bool m_ready_to_generate_path;
 };

@@ -71,6 +71,9 @@ bool GenPath::OnNewMail(MOOSMSG_LIST &NewMail)
      else if(key == "NAV_Y"){
        m_current_y = dval;
      }
+     else if(key == "WPT_INDEX"){
+       m_current_wpt = dval;
+     }
 
      else if(key != "APPCAST_REQ") // handled by AppCastingMOOSApp
        reportRunWarning("Unhandled Mail: " + key);
@@ -160,6 +163,7 @@ void GenPath::registerVariables()
   Register("VISIT_POINT", 0);
   Register("NAV_X", 0);
   Register("NAV_Y", 0);
+  Register("WPT_INDEX", 0);
 }
 
 

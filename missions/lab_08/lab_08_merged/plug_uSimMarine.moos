@@ -1,0 +1,25 @@
+//------------------------------------------------------
+// uSimMarine Configuration Block  (Created from plugin)
+
+ProcessConfig = uSimMarineV22
+{
+  AppTick   = 10
+  CommsTick = 10
+
+  start_pos = $(START_POS), 180, 0
+  prefix    = NAV
+
+  max_speed = $(MAX_SPD)
+
+  turn_rate = 98
+  turn_spd_loss = 0.4
+
+  //post_des_thrust = DESIRED_THRUSTX
+  //post_des_rudder = DESIRED_RUDDERX
+
+  //post_navpos_summary = true
+
+  //rotate_speed = 0.012 
+  //drift_x      = 0.0045
+  //thrust_map = -100:-2, 0:0, 20:1, 40:2, 60:3, 80:5, 100:5                  
+}

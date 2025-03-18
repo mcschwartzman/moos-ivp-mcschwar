@@ -20,6 +20,8 @@ PointAssign::PointAssign()
 {
   m_receiving_points = false;
 
+  m_vehicle_checkins = 0;
+
   m_vehicle_colors = {"red", "yellow", "orange", "yellow", "green"};
 }
 
@@ -66,7 +68,17 @@ bool PointAssign::OnNewMail(MOOSMSG_LIST &NewMail)
       }
      }
      else if(key == "LISTENING_FOR_POINTS"){
-       m_vehicles_registered = true;
+
+       
+
+      if (sval == "true"){
+        m_vehicle_checkins++;
+      }
+      if (m_vehicle_checkins == m_vehicles.size()){
+        m_vehicles_registered = true;
+      }
+      cout << "vehicle_checkins: " << m_vehicle_checkins << endl;
+
      }
 
      else if(key != "APPCAST_REQ") // handled by AppCastingMOOSApp
@@ -206,7 +218,7 @@ bool PointAssign::buildReport()
     actab << m_vehicles[i] + " |";
   }
   actab.addHeaderLines();
-  actab << "registered" << "registered";
+  actab << "vehicle checkins: " << m_vehicle_checkins;
   m_msgs << actab.getFormattedString();
 
   return(true);

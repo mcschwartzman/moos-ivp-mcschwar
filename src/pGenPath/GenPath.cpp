@@ -85,9 +85,12 @@ bool GenPath::OnNewMail(MOOSMSG_LIST &NewMail)
      }
      else if(key == "WPT_INDEX_VISIT"){
        // relies on a waypoint behavior tagged with the _VISIT suffix
+        
        m_new_wpt = true;
-       m_next_wpt = dval;
+       m_next_wpt = (int)dval;
        m_successfully_visited = false;
+
+       cout << "missed waypoints: " << m_missed_waypoints.size() << " at index: " << m_next_wpt << endl;
      }
      else if(key == "GENPATH_REGENERATE"){
        m_genpath_regenerate = true;
@@ -126,6 +129,9 @@ bool GenPath::Iterate()
   }
 
   if (m_genpath_regenerate){
+    cout << "m_visit_points at regenerate: " << m_visit_points.size() << endl;
+    cout << "m_visit_points at regenerate: " << m_visit_points.size() << endl;
+    m_visit_points.clear();
     m_visit_points = m_missed_waypoints;
     m_missed_waypoints.clear();
     m_ready_to_visit = false;
@@ -134,8 +140,10 @@ bool GenPath::Iterate()
   }
 
   if (m_ready_to_generate_path){
+    m_path.clear();
     m_path = generatePath(m_visit_points);
     sendPath(m_path);
+    cout << "done generating path and ready to visit!" << endl;
     m_ready_to_visit = true;
     m_ready_to_generate_path = false;
   }
@@ -147,6 +155,7 @@ bool GenPath::Iterate()
     if (distance_to_next <= m_visit_radius){
       // if our distance is less than configured visit radius
       m_successfully_visited = true;
+      cout << "captured point: " << m_next_wpt << endl;
     }
     //else we never successfully visited
 
@@ -161,7 +170,7 @@ bool GenPath::Iterate()
 
 
 
-  AppCastingMOOSApp::PostReport();
+  // AppCastingMOOSApp::PostReport();
   return(true);
 }
 
@@ -242,15 +251,19 @@ void GenPath::sendPath(std::vector<XYPoint> visit_points){
   for (int i=0; i<visit_points.size(); i++){
     XYPoint current_point = visit_points[i];
 
-    cout << "path point: "<< current_point.x() << ", "<< current_point.y() << endl;
+    // cout << "path point: "<< current_point.x() << ", "<< current_point.y() << endl;
 
     return_path.add_vertex(current_point.x(), current_point.y());
   }
   string pts_string = return_path.get_spec();
+  cout << "getting spec" << endl;
+  cout << "visit_points: " << visit_points.size() << endl;
+  cout << "return_path: " << return_path.size() << endl;
   // biteStringX(pts_string, 'pts=');
   // biteStringX(pts_string, '{');
   string update_string = "points = " + pts_string;
   Notify("UPDATES_WAYPOINT", update_string);
+  cout << "notified updates_waypoint" << endl;
 }
 
 vector<XYPoint> GenPath::generatePath(std::vector<XYPoint> visit_points){
@@ -276,10 +289,10 @@ vector<XYPoint> GenPath::generatePath(std::vector<XYPoint> visit_points){
     
       double distance = pythagorean(current_point, m_visit_points[i]);
       
-      cout << "current_point: "<< current_point.x() << ", " << current_point.y() << endl;
-      cout << "ith_point: "<< ith_point.x() << ", " << ith_point.y() << endl;
-      cout << "distance: " << distance << ", " << "best_distance: " << best_distance << endl;
-      cout << "visit_points: " << m_visit_points.size() << endl;
+      // cout << "current_point: "<< current_point.x() << ", " << current_point.y() << endl;
+      // cout << "ith_point: "<< ith_point.x() << ", " << ith_point.y() << endl;
+      // cout << "distance: " << distance << ", " << "best_distance: " << best_distance << endl;
+      // cout << "visit_points: " << m_visit_points.size() << endl;
 
       if (distance < best_distance) {
         best_distance = distance;
@@ -291,11 +304,15 @@ vector<XYPoint> GenPath::generatePath(std::vector<XYPoint> visit_points){
     current_point = m_visit_points[best_index];
     greedy_path.push_back(current_point);
     m_visit_points.erase(m_visit_points.begin() + best_index);
+    cout << "m_visit_points in while: " << m_visit_points.size() << endl;
   }
   return greedy_path;
 }
 
 double GenPath::pythagorean(XYPoint a, XYPoint b){
+
+  cout << "a: " << to_string(a.x()) << ", " << to_string(a.y()) << endl;
+  cout << "b: " << to_string(b.x()) << ", " << to_string(b.y()) << endl;
 
   double diff_x = b.x() - a.x();
   double diff_y = b.y() - a.y();
@@ -303,6 +320,8 @@ double GenPath::pythagorean(XYPoint a, XYPoint b){
   double x_diff_squared = diff_x * diff_x;
   double y_diff_squared = diff_y * diff_y;
   double distance = sqrt(x_diff_squared + y_diff_squared);
+
+  cout << "successfully did pythagorean" << endl;
 
   return distance;
 }

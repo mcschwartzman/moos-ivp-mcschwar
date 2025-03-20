@@ -27,6 +27,7 @@ GenPath::GenPath()
 
   m_next_wpt = 0;
   m_ready_to_visit = false;
+  m_ready_to_generate_path = false;
   m_received_x = false;
   m_received_y = false;
   m_new_wpt = false;
@@ -148,7 +149,7 @@ bool GenPath::Iterate()
     m_ready_to_generate_path = false;
   }
 
-  if (m_ready_to_visit && m_received_x && m_received_y){
+  if (m_ready_to_visit && m_received_x && m_received_y && m_new_wpt){
 
     XYPoint current_location(m_current_x, m_current_y);
     double distance_to_next = pythagorean(m_path[m_next_wpt], current_location);
@@ -170,7 +171,7 @@ bool GenPath::Iterate()
 
 
 
-  // AppCastingMOOSApp::PostReport();
+  AppCastingMOOSApp::PostReport();
   return(true);
 }
 

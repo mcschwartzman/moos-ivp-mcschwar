@@ -11,7 +11,7 @@ ProcessConfig = pMarinePIDV22
   ACTIVE_START  = true
   
   // Yaw PID controller
-  YAW_PID_KP             = 0.4
+  YAW_PID_KP             = 0.6
   YAW_PID_KD             = 0.1
   YAW_PID_KI             = 0.0
   YAW_PID_INTEGRAL_LIMIT = 0.07

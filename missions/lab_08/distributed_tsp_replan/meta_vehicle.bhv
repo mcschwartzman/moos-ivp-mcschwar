@@ -5,7 +5,7 @@ initialize   DEPLOY  = true
 initialize   RETURN  = false
 initialize   STATION_KEEP = false
 initialize   VISIT  = true
-initialize    REFUEL_NEEDED = false
+initialize   REFUEL_NEEDED = false
 
 set MODE = ACTIVE {
   DEPLOY = true
@@ -64,10 +64,12 @@ Behavior = BHV_Waypoint
 {
   name        = waypt_return
   pwt         = 100
-  updates     = UPDATES_RETURN
+  updates     = RETURN_UPDATES
   condition   = MODE==RETURNING
+  endflag     = STATION_KEEP = true
   endflag     = RETURN = false
   spawnx_flag = RETURN_UPDATES=point=$[OSX],$[OSY]
+  perpetual   = true
 
       speed = 1.3
      radius = 3.0
@@ -102,6 +104,7 @@ Behavior = BHV_Timer
   duration_idle_decay = false
   perpetual   = true
 
+  runflag     = VISIT=false
   endflag     = VISIT=true
   endflag     = REFUEL_NEEDED=false
   endflag     = RETURN=false

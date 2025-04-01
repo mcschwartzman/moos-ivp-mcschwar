@@ -41,6 +41,8 @@ class GenPath : public AppCastingMOOSApp
 
   double m_visit_radius;
 
+  std::string m_handshake_var;
+
  private: // State variables
   std::queue<std::string> m_point_strings;
   std::vector<XYPoint> m_visit_points;
@@ -60,6 +62,7 @@ class GenPath : public AppCastingMOOSApp
   bool m_new_wpt;
   bool m_receiving_points;
   bool m_ready_to_generate_path;
+  bool m_handshaken;
 };
 
 #endif 

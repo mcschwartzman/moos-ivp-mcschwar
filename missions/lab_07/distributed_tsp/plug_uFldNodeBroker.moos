@@ -15,4 +15,5 @@ ProcessConfig = uFldNodeBroker
   bridge = src=NODE_REPORT_LOCAL,  alias=NODE_REPORT
   bridge = src=NODE_MESSAGE_LOCAL, alias=NODE_MESSAGE
   bridge = src=LISTENING_FOR_POINTS, alias=LISTENING_FOR_POINTS
+  bridge = src=VISIT_POINTS_REQ, alias=VISIT_POINTS_REQ
 }

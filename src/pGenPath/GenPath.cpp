@@ -33,6 +33,9 @@ GenPath::GenPath()
   m_new_wpt = false;
   m_successfully_visited = false;
   m_genpath_regenerate = false;
+  m_handshaken = false;
+
+  m_handshake_var = "LISTENING";
 }
 
 //---------------------------------------------------------
@@ -66,6 +69,7 @@ bool GenPath::OnNewMail(MOOSMSG_LIST &NewMail)
 
      if(key == "VISIT_POINT"){
        if(sval == "firstpoint"){
+         m_handshaken = true;
          m_receiving_points = true;
        }
        else if(sval == "lastpoint"){
@@ -110,7 +114,7 @@ bool GenPath::OnNewMail(MOOSMSG_LIST &NewMail)
 bool GenPath::OnConnectToServer()
 {
    registerVariables();
-   Notify("LISTENING_FOR_POINTS", "true");
+   Notify("VISIT_POINTS_REQ", "true");
    return(true);
 }
 
@@ -122,6 +126,12 @@ bool GenPath::Iterate()
 {
   AppCastingMOOSApp::Iterate();
   // Do your thing here!
+
+  // todo: make the handshake var a configurable var,
+  // but you have to do it in iterate
+  // if(!m_handshaken){
+  //   Notify(m_handshake_var, "true");
+  // }
 
   while(m_point_strings.size() > 0){
     XYPoint current_point = string2Point(m_point_strings.front());
@@ -200,7 +210,8 @@ bool GenPath::OnStartUp()
       m_visit_radius = stod(value);
       handled = true;
     }
-    else if(param == "bar") {
+    else if(param == "handshake_var") {
+      m_handshake_var = value;
       handled = true;
     }
 

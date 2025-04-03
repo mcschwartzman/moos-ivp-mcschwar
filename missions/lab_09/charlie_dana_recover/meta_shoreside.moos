@@ -46,6 +46,7 @@ ProcessConfig = uFldShoreBroker
 
   bridge   = src=UP_LOITER_$N, alias=UP_LOITER
   bridge   = src=HELM_MAP_CLEAR, alias=HELM_MAP_CLEAR
+  bridge   = src=UP_LOITER_ALL, alias=UP_LOITER
 }
 
 //--------------------------------------------------
@@ -101,6 +102,8 @@ ProcessConfig = pMarineViewer
   button_two   = RETURN  # RETURN_ALL=true
   button_two   = STATION_KEEP_ALL=false
   button_three = STATION # STATION_KEEP_ALL=true
+
+  button_four  = RENDEZVOUS # UP_LOITER_ALL="ycenter_assign=-30"
 }
 
 //--------------------------------------------------------

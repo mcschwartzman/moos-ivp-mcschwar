@@ -92,6 +92,10 @@ Behavior=BHV_ConstantSpeed
 //----------------------------------------------
 Behavior=BHV_Pulse
 {
-  name       = pulse
-  pwt        = 100
+  name            = pulse
+  pwt             = 100
+
+  pulse_radius    = 20
+  pulse_duration  = 4
+  pulse_delay     = 10
 }

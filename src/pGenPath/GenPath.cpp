@@ -115,7 +115,7 @@ bool GenPath::OnConnectToServer()
 {
    registerVariables();
    Notify("VISIT_POINTS_REQ", "true");
-   Notify(m_handshake_var, "true");
+   Notify("LISTENING_FOR_POINTS", "true");
    return(true);
 }
 

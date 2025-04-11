@@ -35,7 +35,7 @@ GenPath::GenPath()
   m_genpath_regenerate = false;
   m_handshaken = false;
 
-  m_handshake_var = "LISTENING";
+  m_handshake_var = "LISTENING_FOR_POINTS";
 }
 
 //---------------------------------------------------------
@@ -115,6 +115,7 @@ bool GenPath::OnConnectToServer()
 {
    registerVariables();
    Notify("VISIT_POINTS_REQ", "true");
+   Notify(m_handshake_var, "true");
    return(true);
 }
 

@@ -88,7 +88,7 @@ bool GenRescue::OnNewMail(MOOSMSG_LIST &NewMail)
        m_current_y = dval;
        m_received_y = true;
      }
-     else if(key == "WPT_INDEX_VISIT"){
+     else if(key == "WPT_INDEX"){
        // relies on a waypoint behavior tagged with the _VISIT suffix
         
        m_new_wpt = true;
@@ -175,6 +175,7 @@ bool GenRescue::Iterate()
   if (m_ready_to_generate_path){
     m_path.clear();
     m_path = generatePath(m_visit_points);
+    // m_path.erase(m_path.begin());
     sendPath(m_path);
     cout << "done generating path and ready to visit!" << endl;
     m_ready_to_visit = true;
@@ -255,7 +256,7 @@ void GenRescue::registerVariables()
   Register("VISIT_POINT", 0);
   Register("NAV_X", 0);
   Register("NAV_Y", 0);
-  Register("WPT_INDEX_VISIT", 0);
+  Register("WPT_INDEX", 0);
   Register("GENPATH_REGENERATE", 0);
   Register("SWIMMER_ALERT", 0);
 }
@@ -313,21 +314,21 @@ vector<XYPoint> GenRescue::generatePath(std::vector<XYPoint> visit_points){
 
   greedy_path.push_back(current_point);
 
-  while(m_visit_points.size() > 0){
+  while(visit_points.size() > 0){
 
     int best_index = 0;
     double best_distance = numeric_limits<double>::infinity(); 
 
-    for (int i = 0; i < m_visit_points.size(); i++){
+    for (int i = 0; i < visit_points.size(); i++){
 
-      XYPoint ith_point = m_visit_points[i];
+      XYPoint ith_point = visit_points[i];
     
-      double distance = pythagorean(current_point, m_visit_points[i]);
+      double distance = pythagorean(current_point, visit_points[i]);
       
       // cout << "current_point: "<< current_point.x() << ", " << current_point.y() << endl;
       // cout << "ith_point: "<< ith_point.x() << ", " << ith_point.y() << endl;
       // cout << "distance: " << distance << ", " << "best_distance: " << best_distance << endl;
-      // cout << "visit_points: " << m_visit_points.size() << endl;
+      // cout << "visit_points: " << visit_points.size() << endl;
 
       if (distance < best_distance) {
         best_distance = distance;
@@ -336,10 +337,10 @@ vector<XYPoint> GenRescue::generatePath(std::vector<XYPoint> visit_points){
     }
 
     // mark this as the next step and remove this point from m_visit_points
-    current_point = m_visit_points[best_index];
+    current_point = visit_points[best_index];
     greedy_path.push_back(current_point);
-    m_visit_points.erase(m_visit_points.begin() + best_index);
-    cout << "m_visit_points in while: " << m_visit_points.size() << endl;
+    visit_points.erase(visit_points.begin() + best_index);
+    cout << "visit_points in while: " << visit_points.size() << endl;
   }
   return greedy_path;
 }

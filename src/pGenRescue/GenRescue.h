@@ -46,6 +46,7 @@ class GenRescue : public AppCastingMOOSApp
  private: // State variables
   std::queue<std::string> m_point_strings;
   std::vector<XYPoint> m_visit_points;
+  std::vector<XYPoint> m_saved_swimmers;
   std::vector<std::string> m_received_ids;
   std::vector<XYPoint> m_path;
   std::vector<XYPoint> m_missed_waypoints;

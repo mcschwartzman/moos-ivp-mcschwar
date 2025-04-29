@@ -17,6 +17,7 @@ INCLUDE_DIRECTORIES(${LOCAL_LIBRARY_DIRS})
 #============================================================================
 ADD_SUBDIRECTORY(lib_behaviors-test)
 ADD_SUBDIRECTORY(lib_bhv_scout)
+ADD_SUBDIRECTORY(lib_bhv_scout_baseline)
 ADD_SUBDIRECTORY(pExampleApp)
 ADD_SUBDIRECTORY(pXRelayTest)
 ADD_SUBDIRECTORY(pOdometry)

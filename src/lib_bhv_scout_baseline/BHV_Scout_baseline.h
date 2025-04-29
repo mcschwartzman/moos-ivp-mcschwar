@@ -24,7 +24,6 @@
 #define BHV_SCOUT_HEADER
 
 #include <string>
-#include <vector>
 #include "IvPBehavior.h"
 #include "XYPoint.h"
 #include "XYPolygon.h"
@@ -43,7 +42,6 @@ protected:
   IvPFunction* buildFunction();
   void         updateScoutPoint();
   void         postViewPoint(bool viewable=true);
-  std::vector<XYPoint> knownInRect(XYPolygon rectangle);
 
 protected: // State variables
   double   m_osx;
@@ -53,8 +51,6 @@ protected: // State variables
   double   m_ptx;
   double   m_pty;
   bool     m_pt_set;
-
-  std::vector<XYPoint> m_known_swimmers;
 
   XYPolygon m_rescue_region;
 

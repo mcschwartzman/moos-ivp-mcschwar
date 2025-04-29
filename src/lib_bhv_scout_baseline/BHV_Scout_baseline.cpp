@@ -7,7 +7,7 @@
 
 #include <cstdlib>
 #include <math.h>
-#include "BHV_Scout.h"
+#include "BHV_Scout_baseline.h"
 #include "MBUtils.h"
 #include "AngleUtils.h"
 #include "BuildUtils.h"
@@ -227,18 +227,4 @@ IvPFunction *BHV_Scout::buildFunction()
   IvPFunction *ivp_function = coupler.couple(crs_ipf, spd_ipf, 50, 50);
 
   return(ivp_function);
-}
-
-vector<XYPoint> BHV_Scout::knownInRect(XYPolygon rectangle) {
-
-  vector<XYPoint> results;
-
-  for (int i; i < m_known_swimmers.size(); i++){
-    XYPoint ith_swimmer = m_known_swimmers[i];
-    if (rectangle.contains(ith_swimmer.x(), ith_swimmer.y())){
-      results.push_back(ith_swimmer);
-    }
-  }
-
-  return results;
 }

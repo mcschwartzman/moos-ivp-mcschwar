@@ -103,9 +103,19 @@ bool GenRescue::OnNewMail(MOOSMSG_LIST &NewMail)
      else if(key == "SWIMMER_ALERT"){
 
       XYPoint received_point = string2Point(sval);
-
       m_last_point_id = received_point.get_id();
 
+
+      bool swimmer_already_saved = false;
+      for (int i = 0; i< m_saved_swimmers.size(); i++){
+        string ith_point = m_saved_swimmers[i];
+        if (m_last_point_id == ith_point){
+          swimmer_already_saved = true;
+        }
+      }
+      if (swimmer_already_saved){
+        return(true);
+      }
 
       // check to see if this point has been seen before
       bool seen_point = false;
@@ -115,11 +125,30 @@ bool GenRescue::OnNewMail(MOOSMSG_LIST &NewMail)
           seen_point = true;
         }
       }
-
       if (!seen_point){
         m_visit_points.push_back(received_point);
         m_genpath_regenerate = true;
       }
+
+     }
+     else if(key == "FOUND_SWIMMER"){
+        cout << "got found swimmer msg" << endl;
+        // get info about what swimmer was found and by whom
+        string id_to_remove = tokStringParse(sval, "id", ',', '=');
+        string finder = tokStringParse(sval, "finder", ',', '=');
+
+        cout << "id: " << id_to_remove << endl;
+        for (int i = 0; i< m_visit_points.size(); i++){
+          cout << "i: " << i << endl;
+          XYPoint ith_point = m_visit_points[i];
+          if (id_to_remove == ith_point.get_id()){
+            cout << "removing: " << id_to_remove << endl;
+            m_visit_points.erase(m_visit_points.begin() + i);
+            m_genpath_regenerate = true;
+          }
+        }
+        m_saved_swimmers.push_back(id_to_remove);
+        
      }
 
      else if(key != "APPCAST_REQ") // handled by AppCastingMOOSApp
@@ -175,11 +204,13 @@ bool GenRescue::Iterate()
   if (m_ready_to_generate_path){
     m_path.clear();
     m_path = generatePath(m_visit_points);
-    // m_path.erase(m_path.begin());
-    sendPath(m_path);
-    cout << "done generating path and ready to visit!" << endl;
-    m_ready_to_visit = true;
-    m_ready_to_generate_path = false;
+    m_path.erase(m_path.begin());
+    if (m_path.size() > 0){
+      sendPath(m_path);
+      cout << "done generating path and ready to visit!" << endl;
+      m_ready_to_visit = true;
+      m_ready_to_generate_path = false;
+    }
   }
 
   if (m_ready_to_visit && m_received_x && m_received_y && m_new_wpt){
@@ -259,6 +290,7 @@ void GenRescue::registerVariables()
   Register("WPT_INDEX", 0);
   Register("GENPATH_REGENERATE", 0);
   Register("SWIMMER_ALERT", 0);
+  Register("FOUND_SWIMMER", 0);
 }
 
 
@@ -336,7 +368,7 @@ vector<XYPoint> GenRescue::generatePath(std::vector<XYPoint> visit_points){
       }
     }
 
-    // mark this as the next step and remove this point from m_visit_points
+    // mark this as the next step and remove this point from visit_points
     current_point = visit_points[best_index];
     greedy_path.push_back(current_point);
     visit_points.erase(visit_points.begin() + best_index);

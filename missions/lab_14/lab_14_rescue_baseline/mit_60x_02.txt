@@ -1,0 +1,19 @@
+// gen_swimmers --poly=60,10:-30.3602,-32.8374:-4.6578,-87.0535:85.7024,-44.2161 --swimmers=5 --unreg=11 --sep=15
+// Lowest dist between swimmers: 16.16
+poly = pts={60,10:-30.3602,-32.8374:-4.6578,-87.0535:85.7024,-44.2161}
+swimmer = type=reg, name=p01, x=8, y=-44
+swimmer = type=reg, name=p02, x=-5, y=-32
+swimmer = type=reg, name=p03, x=2, y=-61
+swimmer = type=reg, name=p04, x=64, y=0
+swimmer = type=reg, name=p05, x=49, y=-42
+swimmer = type=unreg, name=x01, x=50, y=-13
+swimmer = type=unreg, name=x02, x=77, y=-46
+swimmer = type=unreg, name=x03, x=-23, y=-46
+swimmer = type=unreg, name=x04, x=13, y=-76
+swimmer = type=unreg, name=x05, x=29, y=-30
+swimmer = type=unreg, name=x06, x=44, y=2
+swimmer = type=unreg, name=x07, x=11, y=-20
+swimmer = type=unreg, name=x08, x=29, y=-57
+swimmer = type=unreg, name=x09, x=-16, y=-61
+swimmer = type=unreg, name=x10, x=49, y=-60
+swimmer = type=unreg, name=x11, x=77, y=-27

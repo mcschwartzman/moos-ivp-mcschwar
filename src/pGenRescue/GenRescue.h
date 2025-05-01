@@ -35,6 +35,8 @@ class GenRescue : public AppCastingMOOSApp
    std::vector<XYPoint> generatePath(std::vector<XYPoint> visit_points);
    void sendPath(std::vector<XYPoint> visit_points);
 
+   std::string joinPoints(std::vector<XYPoint> point_array);
+
   double pythagorean(XYPoint a, XYPoint b);
 
  private: // Configuration variables
@@ -46,6 +48,7 @@ class GenRescue : public AppCastingMOOSApp
  private: // State variables
   std::queue<std::string> m_point_strings;
   std::vector<XYPoint> m_visit_points;
+  std::vector<XYPoint> m_known_swimmers;
   std::vector<std::string> m_saved_swimmers;
   std::vector<std::string> m_received_ids;
   std::vector<XYPoint> m_path;

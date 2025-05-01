@@ -28,6 +28,7 @@
 #include "IvPBehavior.h"
 #include "XYPoint.h"
 #include "XYPolygon.h"
+#include "XYHexagon.h"
 
 class BHV_Scout : public IvPBehavior {
 public:
@@ -44,6 +45,8 @@ protected:
   void         updateScoutPoint();
   void         postViewPoint(bool viewable=true);
   std::vector<XYPoint> knownInRect(XYPolygon rectangle);
+  std::vector<XYPoint> knownInHex(XYHexagon hexagon);
+  std::vector<XYPolygon> childrenRect(XYPolygon rectangle);
 
 protected: // State variables
   double   m_osx;
@@ -55,12 +58,16 @@ protected: // State variables
   bool     m_pt_set;
 
   std::vector<XYPoint> m_known_swimmers;
+  std::string m_last_point_id;
 
   XYPolygon m_rescue_region;
 
 protected: // Config variables
   double m_capture_radius;
   double m_desired_speed;
+  double m_check_radius;
+
+  unsigned int m_check_amount;
 
   std::string m_tmate;
 };

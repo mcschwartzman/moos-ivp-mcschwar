@@ -15,6 +15,7 @@
 #include "ZAIC_PEAK.h"
 #include "OF_Coupler.h"
 #include "XYFormatUtilsPoly.h"
+#include "XYFormatUtilsPoint.h"
 
 using namespace std;
 
@@ -36,10 +37,14 @@ BHV_Scout::BHV_Scout(IvPDomain gdomain) :
   m_capture_radius = 10;
 
   m_pt_set = false;
+
+  m_check_radius = 30.0;
+  m_check_amount = 5;
   
   addInfoVars("NAV_X, NAV_Y");
   addInfoVars("RESCUE_REGION");
   addInfoVars("SCOUTED_SWIMMER");
+  addInfoVars("SWIMMER_ALERT");
 }
 
 //---------------------------------------------------------------
@@ -57,6 +62,10 @@ bool BHV_Scout::setParam(string param, string val)
     handled = setPosDoubleOnString(m_desired_speed, val);
   else if(param == "tmate")
     handled = setNonWhiteVarOnString(m_tmate, val);
+  else if(param == "check_radius")
+    handled = setPosDoubleOnString(m_check_radius, val);
+  else if(param == "check_amount")
+    handled = setPosUIntOnString(m_check_amount, val);
   else
     handled = false;
 
@@ -97,6 +106,37 @@ void BHV_Scout::onIdleState()
 
 IvPFunction *BHV_Scout::onRunState() 
 {
+
+  bool ok;
+
+  vector<string> swimmer_alerts = getBufferStringVector("SWIMMER_ALERT", ok);
+
+  for (int i = 0; i < swimmer_alerts.size(); i++){
+
+    string swimmer_alert = swimmer_alerts[i];
+
+    XYPoint received_point = string2Point(swimmer_alert);
+    postMessage("LAST_SWIMMER", swimmer_alert);
+    m_last_point_id = received_point.get_id();
+
+    // check to see if this point has been seen before
+    bool seen_point = false;
+    for (int i = 0; i < m_known_swimmers.size(); i++){
+      XYPoint ith_point = m_known_swimmers[i];
+      if (m_last_point_id == ith_point.get_id()){
+        seen_point = true;
+      }
+    }
+    if (!seen_point){
+      m_known_swimmers.push_back(received_point);
+    }
+
+  }
+
+  postMessage("AVAILABLE_SWIMMERS", m_known_swimmers.size());
+  
+
+
   // Part 1: Get vehicle position from InfoBuffer and post a 
   // warning if problem is encountered
   bool ok1, ok2;
@@ -158,6 +198,25 @@ void BHV_Scout::updateScoutPoint()
   bool ok = randPointInPoly(m_rescue_region, ptx, pty);
   if(!ok) {
     postWMessage("Unable to generate scout point");
+    return;
+  }
+
+  XYHexagon hex_to_check;
+  hex_to_check.initialize(ptx, pty, m_check_radius);
+  hex_to_check.set_label("check_hex");
+  vector<XYPoint> points_in_hex = knownInHex(hex_to_check);
+  string hex_msg = hex_to_check.get_spec();
+
+  postMessage("VIEW_POLYGON", hex_msg);
+  postMessage("POINTS_IN_POLY", points_in_hex.size());
+
+  if (m_rescue_region.dist_to_poly(ptx, pty, 90) < m_check_radius){
+    postWMessage("Check Poly overlapped with bound area");
+    return;
+  }
+
+  if (points_in_hex.size() > m_check_amount){
+    postWMessage("Check Poly contained too many swimmers");
     return;
   }
     
@@ -239,6 +298,26 @@ vector<XYPoint> BHV_Scout::knownInRect(XYPolygon rectangle) {
       results.push_back(ith_swimmer);
     }
   }
+
+  return results;
+}
+
+vector<XYPoint> BHV_Scout::knownInHex(XYHexagon hexagon) {
+
+  vector<XYPoint> results;
+
+  for (int i = 0; i < m_known_swimmers.size(); i++){
+    XYPoint ith_swimmer = m_known_swimmers[i];
+    if (hexagon.contains(ith_swimmer.x(), ith_swimmer.y())){
+      results.push_back(ith_swimmer);
+    }
+  }
+
+  return results;
+}
+
+vector<XYPolygon> BHV_Scout::childrenRect(XYPolygon rectangle) {
+  vector<XYPolygon> results;
 
   return results;
 }

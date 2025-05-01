@@ -127,6 +127,7 @@ bool GenRescue::OnNewMail(MOOSMSG_LIST &NewMail)
       }
       if (!seen_point){
         m_visit_points.push_back(received_point);
+        m_known_swimmers.push_back(received_point);
         m_genpath_regenerate = true;
       }
 
@@ -184,18 +185,20 @@ bool GenRescue::Iterate()
   //   Notify(m_handshake_var, "true");
   // }
 
+  string known_swimmers = joinPoints(m_known_swimmers);
+
+  Notify("KNOWN_SWIMMERS", known_swimmers);
+
   while(m_point_strings.size() > 0){
     XYPoint current_point = string2Point(m_point_strings.front());
     m_visit_points.push_back(current_point);
+    m_known_swimmers.push_back(current_point);
     m_point_strings.pop();
   }
 
   if (m_genpath_regenerate){
     cout << "m_visit_points at regenerate: " << m_visit_points.size() << endl;
     cout << "m_visit_points at regenerate: " << m_visit_points.size() << endl;
-    // m_visit_points.clear();
-    // m_visit_points = m_missed_waypoints;
-    // m_missed_waypoints.clear();
     m_ready_to_visit = false;
     m_ready_to_generate_path = true;
     m_genpath_regenerate = false;
@@ -306,7 +309,7 @@ bool GenRescue::buildReport()
   ACTable actab(4);
   actab << "Swmrs Recvd | Pts Missed | Wpt Idx | LastPt";
   actab.addHeaderLines();
-  actab << to_string(m_visit_points.size()) << to_string(m_missed_waypoints.size()) << to_string(m_next_wpt) << m_last_point_id;
+  actab << to_string(m_known_swimmers.size()) << to_string(m_missed_waypoints.size()) << to_string(m_next_wpt) << m_last_point_id;
   m_msgs << actab.getFormattedString();
 
   return(true);
@@ -392,4 +395,21 @@ double GenRescue::pythagorean(XYPoint a, XYPoint b){
   cout << "successfully did pythagorean" << endl;
 
   return distance;
+}
+
+string GenRescue::joinPoints(vector<XYPoint> point_array){
+  string result = "";
+
+  for (int i = 0; i< point_array.size(); i++){
+    XYPoint ith_point = point_array[i];
+    string ith_string = "id=" + ith_point.get_id() + ",";
+
+    ith_string += "x=" + to_string(ith_point.x()) + ",";
+    ith_string += "y=" + to_string(ith_point.y()) + "|";
+
+    result += ith_string;
+
+  }
+
+  return result;
 }

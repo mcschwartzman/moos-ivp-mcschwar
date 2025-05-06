@@ -29,6 +29,7 @@
 #include "XYPoint.h"
 #include "XYPolygon.h"
 #include "XYHexagon.h"
+#include "NodeRecordUtils.h"
 
 class BHV_Scout : public IvPBehavior {
 public:
@@ -58,6 +59,7 @@ protected: // State variables
   bool     m_pt_set;
 
   std::vector<XYPoint> m_known_swimmers;
+  std::vector<std::string> m_vehicles;
   std::string m_last_point_id;
 
   XYPolygon m_rescue_region;

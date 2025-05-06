@@ -38,13 +38,14 @@ BHV_Scout::BHV_Scout(IvPDomain gdomain) :
 
   m_pt_set = false;
 
-  m_check_radius = 30.0;
+  m_check_radius = 20.0;
   m_check_amount = 5;
   
   addInfoVars("NAV_X, NAV_Y");
   addInfoVars("RESCUE_REGION");
   addInfoVars("SCOUTED_SWIMMER");
   addInfoVars("SWIMMER_ALERT");
+  addInfoVars("NODE_REPORT");
 }
 
 //---------------------------------------------------------------
@@ -112,13 +113,10 @@ IvPFunction *BHV_Scout::onRunState()
   vector<string> swimmer_alerts = getBufferStringVector("SWIMMER_ALERT", ok);
 
   for (int i = 0; i < swimmer_alerts.size(); i++){
-
     string swimmer_alert = swimmer_alerts[i];
-
     XYPoint received_point = string2Point(swimmer_alert);
     postMessage("LAST_SWIMMER", swimmer_alert);
     m_last_point_id = received_point.get_id();
-
     // check to see if this point has been seen before
     bool seen_point = false;
     for (int i = 0; i < m_known_swimmers.size(); i++){
@@ -130,10 +128,27 @@ IvPFunction *BHV_Scout::onRunState()
     if (!seen_point){
       m_known_swimmers.push_back(received_point);
     }
-
   }
 
   postMessage("AVAILABLE_SWIMMERS", m_known_swimmers.size());
+
+  vector<string> node_reports = getBufferStringVector("NODE_REPORT", ok);
+  for (int i = 0; i < node_reports.size(); i++){
+    string node_report = node_reports[i];
+    NodeRecord node_record = string2NodeRecord(node_report);
+    string node_name = node_record.getName();
+    
+    bool seen_name = false;
+    for (int j = 0; j < m_vehicles.size(); j++){
+      if (node_name == m_vehicles[j]){
+        seen_name = true;
+      }
+    }
+    if (!seen_name){
+      m_vehicles.push_back(node_name);
+    }    
+  }
+  postMessage("REGISTERED_NODES", m_vehicles.size());
   
 
 

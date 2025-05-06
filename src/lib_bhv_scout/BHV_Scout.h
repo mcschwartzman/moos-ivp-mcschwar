@@ -24,12 +24,15 @@
 #define BHV_SCOUT_HEADER
 
 #include <string>
+#include <unordered_map>
 #include <vector>
 #include "IvPBehavior.h"
 #include "XYPoint.h"
 #include "XYPolygon.h"
 #include "XYHexagon.h"
 #include "NodeRecordUtils.h"
+#include "NodeMessage.h"
+#include "WaypointEngine.h"
 
 class BHV_Scout : public IvPBehavior {
 public:
@@ -49,6 +52,8 @@ protected:
   std::vector<XYPoint> knownInHex(XYHexagon hexagon);
   std::vector<XYPolygon> childrenRect(XYPolygon rectangle);
 
+  void spoofNode(std::string node_name, std::string node_type, double x, double y, double heading, double speed, std::string destination);
+
 protected: // State variables
   double   m_osx;
   double   m_osy;
@@ -58,9 +63,15 @@ protected: // State variables
   double   m_pty;
   bool     m_pt_set;
 
+  WaypointEngine m_waypoint_engine;
+
   std::vector<XYPoint> m_known_swimmers;
   std::vector<std::string> m_vehicles;
+  std::vector<NodeRecord> m_noderecords;
+  std::vector<std::string> m_spoofs;
   std::string m_last_point_id;
+
+  std::unordered_map<std::string, NodeRecord> m_node_map;
 
   XYPolygon m_rescue_region;
 

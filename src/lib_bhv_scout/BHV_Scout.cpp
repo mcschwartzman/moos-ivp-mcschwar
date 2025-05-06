@@ -16,6 +16,7 @@
 #include "OF_Coupler.h"
 #include "XYFormatUtilsPoly.h"
 #include "XYFormatUtilsPoint.h"
+#include <bits/stdc++.h>
 
 using namespace std;
 
@@ -146,9 +147,42 @@ IvPFunction *BHV_Scout::onRunState()
     }
     if (!seen_name){
       m_vehicles.push_back(node_name);
-    }    
+    }
+    m_node_map[node_name] = node_record;
   }
   postMessage("REGISTERED_NODES", m_vehicles.size());
+
+  vector<string> vehicle_list = {"abe", "ben", "pip", "cal", "deb", "eve"};
+
+  for (int i = 0; i < vehicle_list.size(); i++){
+    string ith_vehicle = vehicle_list[i];
+    if (count(m_vehicles.begin(), m_vehicles.end(), ith_vehicle) < 1){
+      m_spoofs.push_back(ith_vehicle);
+    }
+  }
+
+  for (int i = 0; i < m_vehicles.size(); i++){
+    string ith_vehicle = m_vehicles[i];
+    if (m_tmate != ith_vehicle){
+
+      NodeRecord node = m_node_map[ith_vehicle];
+
+      double node_x = node.getX();
+      double node_y = node.getY();
+      double node_heading = node.getHeading();
+
+      //string spoof_name = m_spoofs[0]; // ensures we use different spoof for each adversary
+
+      //todo, different name other than us name or tmate, maybe an xy offset
+
+      double offset = 3;
+      double speed = 1;
+      spoofNode(m_spoofs[0], "heron", node_x + offset, node_y + offset, node_heading + 180, speed, ith_vehicle);
+      spoofNode(m_spoofs[1], "KAYAK", node_x - offset, node_y - offset, node_heading - 180, speed, ith_vehicle);
+      spoofNode(m_spoofs[2], "heron", node_x - offset, node_y + offset, node_heading + 180, speed, ith_vehicle);
+      spoofNode(m_spoofs[3], "KAYAK", node_x + offset, node_y - offset, node_heading - 180, speed, ith_vehicle);
+    }
+  }
   
 
 
@@ -161,6 +195,11 @@ IvPFunction *BHV_Scout::onRunState()
     postWMessage("No ownship X/Y info in info_buffer.");
     return(0);
   }
+
+  double this_x = m_waypoint_engine.getPointX();
+  double this_y = m_waypoint_engine.getPointY();
+  int    this_i = m_waypoint_engine.getCurrIndex();
+
   
   // Part 2: Determine if the vehicle has reached the destination 
   // point and if so, declare completion.
@@ -234,6 +273,14 @@ void BHV_Scout::updateScoutPoint()
     postWMessage("Check Poly contained too many swimmers");
     return;
   }
+
+  m_waypoint_engine.setSegList(hex_to_check);
+
+  XYSegList seg_list = hex_to_check.exportSegList(m_osx, m_osy);
+  XYPoint hex_point = seg_list.get_last_point();
+
+  ptx = hex_point.x();
+  pty = hex_point.y();
     
   m_ptx = ptx;
   m_pty = pty;
@@ -335,4 +382,31 @@ vector<XYPolygon> BHV_Scout::childrenRect(XYPolygon rectangle) {
   vector<XYPolygon> results;
 
   return results;
+}
+
+void BHV_Scout::spoofNode(string node_name, string node_type, double x, double y, double heading, double speed, string destination){
+  NodeRecord  node_record;
+  node_record.setX(x);
+  node_record.setY(y);
+  node_record.setHeading(heading);
+  node_record.setSpeed(speed);
+  node_record.setName(node_name);
+  node_record.setLength(3);
+  node_record.setColor("yellow");
+  node_record.setMode("MODE@ACTIVE:RETURNING");
+  node_record.setAllStop("clear");
+  node_record.setType(node_type);
+  node_record.setYaw(-1);
+  double moos_tstamp = getBufferCurrTime();
+  node_record.setTimeStamp(moos_tstamp);
+
+  NodeMessage node_message;
+  node_message.setSourceNode(m_us_name);
+  node_message.setVarName("NODE_REPORT");
+  node_message.setStringVal(node_record.getSpec());
+  node_message.setDestNode(destination);
+
+  string msg_val = node_message.getSpec();
+
+  postMessage("NODE_MESSAGE_LOCAL", msg_val);
 }

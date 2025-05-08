@@ -47,6 +47,7 @@ BHV_Scout::BHV_Scout(IvPDomain gdomain) :
   addInfoVars("SCOUTED_SWIMMER");
   addInfoVars("SWIMMER_ALERT");
   addInfoVars("NODE_REPORT");
+  addInfoVars("BEING_CHASED");
 }
 
 //---------------------------------------------------------------
@@ -161,30 +162,31 @@ IvPFunction *BHV_Scout::onRunState()
     }
   }
 
-  for (int i = 0; i < m_vehicles.size(); i++){
-    string ith_vehicle = m_vehicles[i];
-    if (m_tmate != ith_vehicle){
+  string being_chased = getBufferStringVal("BEING_CHASED");
+  if (being_chased == "true"){
+    for (int i = 0; i < m_vehicles.size(); i++){
+      string ith_vehicle = m_vehicles[i];
+      if (m_tmate != ith_vehicle){
 
-      NodeRecord node = m_node_map[ith_vehicle];
+        NodeRecord node = m_node_map[ith_vehicle];
 
-      double node_x = node.getX();
-      double node_y = node.getY();
-      double node_heading = node.getHeading();
+        double node_x = node.getX();
+        double node_y = node.getY();
+        double node_heading = node.getHeading();
 
-      //string spoof_name = m_spoofs[0]; // ensures we use different spoof for each adversary
+        //string spoof_name = m_spoofs[0]; // ensures we use different spoof for each adversary
 
-      //todo, different name other than us name or tmate, maybe an xy offset
+        //todo, different name other than us name or tmate, maybe an xy offset
 
-      double offset = 3;
-      double speed = 1;
-      spoofNode(m_spoofs[0], "heron", node_x + offset, node_y + offset, node_heading + 180, speed, ith_vehicle);
-      spoofNode(m_spoofs[1], "KAYAK", node_x - offset, node_y - offset, node_heading - 180, speed, ith_vehicle);
-      spoofNode(m_spoofs[2], "heron", node_x - offset, node_y + offset, node_heading + 180, speed, ith_vehicle);
-      spoofNode(m_spoofs[3], "KAYAK", node_x + offset, node_y - offset, node_heading - 180, speed, ith_vehicle);
+        double offset = 3;
+        double speed = 1;
+        spoofNode(m_spoofs[0], "heron", node_x + offset, node_y + offset, node_heading + 180, speed, ith_vehicle);
+        spoofNode(m_spoofs[1], "KAYAK", node_x - offset, node_y - offset, node_heading - 180, speed, ith_vehicle);
+        spoofNode(m_spoofs[2], "heron", node_x - offset, node_y + offset, node_heading + 180, speed, ith_vehicle);
+        spoofNode(m_spoofs[3], "KAYAK", node_x + offset, node_y - offset, node_heading - 180, speed, ith_vehicle);
+      }
     }
   }
-  
-
 
   // Part 1: Get vehicle position from InfoBuffer and post a 
   // warning if problem is encountered

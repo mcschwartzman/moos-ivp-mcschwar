@@ -37,6 +37,9 @@ BHV_Scout::BHV_Scout(IvPDomain gdomain) :
   m_desired_speed  = 1; 
   m_capture_radius = 10;
 
+  m_rand_points_checked = 0;
+  m_gen_hex = true;
+
   m_pt_set = false;
 
   m_check_radius = 20.0;
@@ -251,41 +254,42 @@ void BHV_Scout::updateScoutPoint()
   
   double ptx = 0;
   double pty = 0;
-  bool ok = randPointInPoly(m_rescue_region, ptx, pty);
-  if(!ok) {
-    postWMessage("Unable to generate scout point");
-    return;
+  
+
+  if (m_rand_points_checked < 4){
+    m_rand_points_checked++;
+    bool ok = randPointInPoly(m_hex_to_check, ptx, pty);
+  }
+  else {
+    m_rand_points_checked = 0;
+    bool ok = randPointInPoly(m_rescue_region, ptx, pty);
+    if(!ok) {
+      postWMessage("Unable to generate scout point");
+      return;
+    }
+
+    m_hex_to_check.initialize(ptx, pty, m_check_radius);
+    m_hex_to_check.set_label("check_hex");
+    vector<XYPoint> points_in_hex = knownInHex(m_hex_to_check);
+    string hex_msg = m_hex_to_check.get_spec();
+
+    postMessage("VIEW_POLYGON", hex_msg);
+    postMessage("POINTS_IN_POLY", points_in_hex.size());
+
+    if (m_rescue_region.dist_to_poly(ptx, pty, 90) < m_check_radius){
+      postWMessage("Check Poly overlapped with bound area");
+      return;
+    }
+
+    if (points_in_hex.size() > m_check_amount){
+      postWMessage("Check Poly contained too many swimmers");
+      return;
+    }
   }
 
-  XYHexagon hex_to_check;
-  hex_to_check.initialize(ptx, pty, m_check_radius);
-  hex_to_check.set_label("check_hex");
-  vector<XYPoint> points_in_hex = knownInHex(hex_to_check);
-  string hex_msg = hex_to_check.get_spec();
-
-  postMessage("VIEW_POLYGON", hex_msg);
-  postMessage("POINTS_IN_POLY", points_in_hex.size());
-
-  if (m_rescue_region.dist_to_poly(ptx, pty, 90) < m_check_radius){
-    postWMessage("Check Poly overlapped with bound area");
-    return;
-  }
-
-  if (points_in_hex.size() > m_check_amount){
-    postWMessage("Check Poly contained too many swimmers");
-    return;
-  }
-
-  m_waypoint_engine.setSegList(hex_to_check);
-
-  XYSegList seg_list = hex_to_check.exportSegList(m_osx, m_osy);
-  XYPoint hex_point = seg_list.get_last_point();
-
-  ptx = hex_point.x();
-  pty = hex_point.y();
-    
   m_ptx = ptx;
   m_pty = pty;
+
   m_pt_set = true;
   string msg = "New pt: " + doubleToStringX(ptx) + "," + doubleToStringX(pty);
   postEventMessage(msg);

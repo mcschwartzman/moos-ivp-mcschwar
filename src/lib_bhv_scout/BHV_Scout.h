@@ -62,6 +62,11 @@ protected: // State variables
   double   m_ptx;
   double   m_pty;
   bool     m_pt_set;
+  bool m_gen_hex;
+
+  XYHexagon m_hex_to_check;
+
+  int m_rand_points_checked;
 
   WaypointEngine m_waypoint_engine;
 

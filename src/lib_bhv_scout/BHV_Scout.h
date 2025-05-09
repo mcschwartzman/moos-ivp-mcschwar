@@ -52,6 +52,7 @@ protected:
   std::vector<XYPoint> knownInHex(XYHexagon hexagon);
   std::vector<XYPolygon> childrenRect(XYPolygon rectangle);
 
+  double pythagorean(XYPoint a, XYPoint b);
   void spoofNode(std::string node_name, std::string node_type, double x, double y, double heading, double speed, std::string destination);
 
 protected: // State variables
@@ -63,10 +64,13 @@ protected: // State variables
   double   m_pty;
   bool     m_pt_set;
   bool m_gen_hex;
+  bool m_being_chased;
 
   XYHexagon m_hex_to_check;
 
   int m_rand_points_checked;
+  int m_max_chase_iterations;
+  double m_chase_radius;
 
   WaypointEngine m_waypoint_engine;
 
@@ -77,6 +81,7 @@ protected: // State variables
   std::string m_last_point_id;
 
   std::unordered_map<std::string, NodeRecord> m_node_map;
+  std::unordered_map<std::string, int> m_chasing_map;
 
   XYPolygon m_rescue_region;
 

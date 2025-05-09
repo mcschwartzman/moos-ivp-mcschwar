@@ -41,6 +41,10 @@ BHV_Scout::BHV_Scout(IvPDomain gdomain) :
   m_gen_hex = true;
 
   m_pt_set = false;
+  m_being_chased = false;
+
+  m_max_chase_iterations = 80; // divide this number by 4 for the number of seconds
+  m_chase_radius = 16;
 
   m_check_radius = 20.0;
   m_check_amount = 5;
@@ -113,6 +117,44 @@ void BHV_Scout::onIdleState()
 IvPFunction *BHV_Scout::onRunState() 
 {
 
+  // this part looks through all vehicles and checks if they're chasing the rescue boat
+  for (int i = 0; i < m_vehicles.size(); i++){
+    string ith_vehicle_name = m_vehicles[i];
+    if (ith_vehicle_name != m_tmate){
+      NodeRecord ith_node = m_node_map[ith_vehicle_name];
+      XYPoint node_pos(ith_node.getX(), ith_node.getY());
+
+      NodeRecord rescue_ship = m_node_map[m_tmate];
+      XYPoint rescue_pos(rescue_ship.getX(), rescue_ship.getY());
+
+      if (pythagorean(node_pos, rescue_pos) < m_chase_radius){
+
+        if (m_chasing_map.find(ith_vehicle_name) != m_chasing_map.end()){
+          m_chasing_map[ith_vehicle_name] = m_chasing_map[ith_vehicle_name] + 1;
+        }
+        else {
+          m_chasing_map[ith_vehicle_name] = 0;
+        }
+      }
+      else {
+        m_chasing_map[ith_vehicle_name] = 0;
+      }
+    }
+  }
+
+  m_being_chased = false;
+  for (int i = 0; i < m_vehicles.size(); i++){
+    string ith_vehicle_name = m_vehicles[i];
+    string msg_key = "CHASE_ITER_" + ith_vehicle_name;
+    int chase_iter = m_chasing_map[ith_vehicle_name];
+    postMessage(msg_key, chase_iter);
+    if (chase_iter > m_max_chase_iterations){
+      m_being_chased = true;
+    }
+  }
+
+
+
   bool ok;
 
   vector<string> swimmer_alerts = getBufferStringVector("SWIMMER_ALERT", ok);
@@ -156,7 +198,7 @@ IvPFunction *BHV_Scout::onRunState()
   }
   postMessage("REGISTERED_NODES", m_vehicles.size());
 
-  vector<string> vehicle_list = {"abe", "ben", "pip", "cal", "deb", "eve"};
+  vector<string> vehicle_list = {"abe", "ben", "pip", "cal", "deb", "eve", "hal", "max", "oak"};
 
   for (int i = 0; i < vehicle_list.size(); i++){
     string ith_vehicle = vehicle_list[i];
@@ -166,7 +208,12 @@ IvPFunction *BHV_Scout::onRunState()
   }
 
   string being_chased = getBufferStringVal("BEING_CHASED");
+
   if (being_chased == "true"){
+    m_being_chased = true;
+  }
+
+  if (m_being_chased == true){
     for (int i = 0; i < m_vehicles.size(); i++){
       string ith_vehicle = m_vehicles[i];
       if (m_tmate != ith_vehicle){
@@ -186,7 +233,7 @@ IvPFunction *BHV_Scout::onRunState()
         spoofNode(m_spoofs[0], "heron", node_x + offset, node_y + offset, node_heading + 180, speed, ith_vehicle);
         spoofNode(m_spoofs[1], "KAYAK", node_x - offset, node_y - offset, node_heading - 180, speed, ith_vehicle);
         spoofNode(m_spoofs[2], "heron", node_x - offset, node_y + offset, node_heading + 180, speed, ith_vehicle);
-        spoofNode(m_spoofs[3], "KAYAK", node_x + offset, node_y - offset, node_heading - 180, speed, ith_vehicle);
+        spoofNode(m_spoofs[3], "KAYAK", node_x + offset, node_y - offset, node_heading + 180, speed, ith_vehicle);
       }
     }
   }
@@ -415,4 +462,21 @@ void BHV_Scout::spoofNode(string node_name, string node_type, double x, double y
   string msg_val = node_message.getSpec();
 
   postMessage("NODE_MESSAGE_LOCAL", msg_val);
+}
+
+double BHV_Scout::pythagorean(XYPoint a, XYPoint b){
+
+  cout << "a: " << to_string(a.x()) << ", " << to_string(a.y()) << endl;
+  cout << "b: " << to_string(b.x()) << ", " << to_string(b.y()) << endl;
+
+  double diff_x = b.x() - a.x();
+  double diff_y = b.y() - a.y();
+
+  double x_diff_squared = diff_x * diff_x;
+  double y_diff_squared = diff_y * diff_y;
+  double distance = sqrt(x_diff_squared + y_diff_squared);
+
+  cout << "successfully did pythagorean" << endl;
+
+  return distance;
 }

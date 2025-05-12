@@ -43,8 +43,8 @@ BHV_Scout::BHV_Scout(IvPDomain gdomain) :
   m_pt_set = false;
   m_being_chased = false;
 
-  m_max_chase_iterations = 70; // divide this number by 4 for the number of seconds that a vessel must be near us in order to count as chasing
-  m_chase_radius = 16;  // how close a vessel must be to be considered chasing us
+  m_max_chase_iterations = 65; // divide this number by 4 for the number of seconds that a vessel must be near us in order to count as chasing
+  m_chase_radius = 17;  // how close a vessel must be to be considered chasing us
 
   m_rand_points_to_check = 2; // number of rand points in check hex to go to before regenerating hex
   m_check_radius = 10.0;  // size of the check hex to generate

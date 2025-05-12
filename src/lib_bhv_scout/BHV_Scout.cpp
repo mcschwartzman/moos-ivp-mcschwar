@@ -37,7 +37,7 @@ BHV_Scout::BHV_Scout(IvPDomain gdomain) :
   m_desired_speed  = 1; 
   m_capture_radius = 10;
 
-  m_rand_points_checked = 0;
+  m_rand_points_checked = 2;
   m_gen_hex = true;
 
   m_pt_set = false;
@@ -49,7 +49,8 @@ BHV_Scout::BHV_Scout(IvPDomain gdomain) :
   m_rand_points_to_check = 2; // number of rand points in check hex to go to before regenerating hex
   m_check_radius = 10.0;  // size of the check hex to generate
   m_check_amount = 3; // max number of KNOWN swimmers in hex, if any more, we will put a hex somewhere else
-  
+  m_distance_to_rescuer = 20; // min distance from center point of hex to the rescue boat
+
   addInfoVars("NAV_X, NAV_Y");
   addInfoVars("RESCUE_REGION");
   addInfoVars("SCOUTED_SWIMMER");
@@ -324,6 +325,11 @@ void BHV_Scout::updateScoutPoint()
     postMessage("VIEW_POLYGON", hex_msg);
     postMessage("POINTS_IN_POLY", points_in_hex.size());
 
+    NodeRecord rescue_ship = m_node_map[m_tmate];
+    XYPoint rescue_pos(rescue_ship.getX(), rescue_ship.getY());
+
+    XYPoint hex_pos(ptx, pty);
+
     if (m_rescue_region.dist_to_poly(ptx, pty, 90) < m_check_radius){
       postWMessage("Check Poly overlapped with bound area");
       return;
@@ -331,6 +337,11 @@ void BHV_Scout::updateScoutPoint()
 
     if (points_in_hex.size() > m_check_amount){
       postWMessage("Check Poly contained too many swimmers");
+      return;
+    }
+
+    if (pythagorean(rescue_pos, hex_pos)){
+      postWMessage("Check Poly to close to rescue boat");
       return;
     }
   }

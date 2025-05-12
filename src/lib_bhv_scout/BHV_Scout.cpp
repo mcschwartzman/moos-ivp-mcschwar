@@ -43,8 +43,8 @@ BHV_Scout::BHV_Scout(IvPDomain gdomain) :
   m_pt_set = false;
   m_being_chased = false;
 
-  m_max_chase_iterations = 80; // divide this number by 4 for the number of seconds
-  m_chase_radius = 16;
+  m_max_chase_iterations = 60; // divide this number by 4 for the number of seconds
+  m_chase_radius = 20;
 
   m_check_radius = 20.0;
   m_check_amount = 5;

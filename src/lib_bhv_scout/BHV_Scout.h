@@ -71,6 +71,7 @@ protected: // State variables
   int m_rand_points_checked;
   int m_max_chase_iterations;
   double m_chase_radius;
+  int m_rand_points_to_check;
 
   WaypointEngine m_waypoint_engine;
 

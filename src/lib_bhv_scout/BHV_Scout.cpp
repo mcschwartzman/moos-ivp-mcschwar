@@ -16,7 +16,7 @@
 #include "OF_Coupler.h"
 #include "XYFormatUtilsPoly.h"
 #include "XYFormatUtilsPoint.h"
-#include <bits/stdc++.h>
+#include <algorithm>
 
 using namespace std;
 
@@ -204,7 +204,8 @@ IvPFunction *BHV_Scout::onRunState()
 
   for (int i = 0; i < vehicle_list.size(); i++){
     string ith_vehicle = vehicle_list[i];
-    if (count(m_vehicles.begin(), m_vehicles.end(), ith_vehicle) < 1){
+    auto it = std::find(m_vehicles.begin(), m_vehicles.end(), ith_vehicle);
+    if (it == m_vehicles.end()){
       m_spoofs.push_back(ith_vehicle);
     }
   }

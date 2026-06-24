@@ -1,9 +1,9 @@
 #!/bin/bash -e
 #------------------------------------------------------------
 #   Script: launch.sh
-#  Mission: 14-filter-cmgr
-#   Author: M.Benjamin
-#   LastEd: June 2025
+#  Mission: 2_tether
+#   Author: M.Schwartzman
+#  Created: June 2026
 #------------------------------------------------------------
 #  Part 1: Set convenience functions for producing terminal
 #          debugging output, and catching SIGINT (ctrl-c).
@@ -161,7 +161,7 @@ done
 #------------------------------------------------------------
 #  Part 7: Launch the Shoreside mission file
 #------------------------------------------------------------
-SARGS=" --auto --mport=9000 --pshare=9200 $NOGUI --vnames=abe:ben "
+SARGS=" --auto --mport=9000 --pshare=9200 $NOGUI --vnames=rov:asv "
 SARGS+=" $TIME_WARP $JUST_MAKE $VERBOSE "
 SARGS+=" $MMOD "
 if [ "${XLAUNCHED}" = "yes" ]; then

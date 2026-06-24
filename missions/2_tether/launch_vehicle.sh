@@ -30,7 +30,7 @@ SHORE_IP="localhost"
 SHORE_PSHARE="9200"
 MMOD=""
 
-VNAME="abe"
+VNAME="rov"
 COLOR="yellow"
 XMODE="M300"
 START_POS="x=0,y=0,heading=0"  

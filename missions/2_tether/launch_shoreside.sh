@@ -1,9 +1,9 @@
 #!/bin/bash 
 #------------------------------------------------------------ 
 #   Script: launch_shoreside.sh    
-#  Mission: 02_berta_cmgr
-#   Author: M.Benjamin   
-#   LastEd: Jan 2025
+#  Mission: 2_tether
+#   Author: M.Schwartzman   
+#  Created: June 2026
 #------------------------------------------------------------ 
 #  Part 1: Set convenience functions for producing terminal
 #          debugging output, and catching SIGINT (ctrl-c).
@@ -28,7 +28,7 @@ MOOS_PORT="9000"
 PSHARE_PORT="9200"
 MMOD=""
 
-VNAMES="abe:ben"
+VNAMES="rov:asv"
 
 #------------------------------------------------------------ 
 #  Part 3: Check for and handle command-line arguments

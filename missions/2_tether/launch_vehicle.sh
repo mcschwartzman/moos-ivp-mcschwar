@@ -199,10 +199,18 @@ nsplug meta_vehicle.moos targ_$VNAME.moos $NSFLAGS WARP=$TIME_WARP \
        VSOURCE=$VSOURCE                                  \
        FSEAT_IP=$FSEAT_IP
 
-nsplug meta_vehicle.bhv targ_$VNAME.bhv $NSFLAGS  \
-       START_POS=$START_POS         VNAME=$VNAME  \
-       STOCK_SPD=$STOCK_SPD         MMOD=$MMOD    \
-       DEST_POS=$DEST_POS
+if [ "${VNAME}" = "asv" ]; then
+    nsplug surface_vehicle.bhv targ_asv.bhv $NSFLAGS  \
+        START_POS=$START_POS         VNAME=asv  \
+        STOCK_SPD=$STOCK_SPD         MMOD=$MMOD    \
+        DEST_POS=$DEST_POS
+
+else
+    nsplug subsea_vehicle.bhv targ_rov.bhv $NSFLAGS  \
+        START_POS=$START_POS         VNAME=rov  \
+        STOCK_SPD=$STOCK_SPD         MMOD=$MMOD    \
+        DEST_POS=$DEST_POS
+fi
 
 if [ "${JUST_MAKE}" = "yes" ]; then
     echo "Targ files made; exiting without launch."

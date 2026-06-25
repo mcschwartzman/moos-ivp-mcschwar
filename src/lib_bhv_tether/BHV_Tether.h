@@ -9,9 +9,9 @@
 #define Tether_HEADER
 
 #include <string>
-#include "IvPBehavior.h"
+#include "IvPContactBehavior.h"
 
-class BHV_Tether : public IvPBehavior {
+class BHV_Tether : public IvPContactBehavior {
 public:
   BHV_Tether(IvPDomain);
   ~BHV_Tether() {};
@@ -24,11 +24,16 @@ public:
   void         postConfigStatus();
   void         onRunToIdleState();
   void         onIdleToRunState();
+  void         drawGraphics();
+  float        calculateOuterRing();
   IvPFunction* onRunState();
 
 protected: // Local Utility functions
 
 protected: // Configuration parameters
+  std::string m_leader;
+  
+  float m_tether_length = 10; // in meters
 
 protected: // State variables
 };

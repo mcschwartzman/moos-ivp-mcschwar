@@ -78,7 +78,7 @@ echo "arpa"  >> vsource.txt
 echo "radar" >> vsource.txt
 echo "ais" >> vsource.txt
 
-pickpos --amt=$VEHICLE_AMT --vnames  > vnames.txt
+printf "rov\nasv"  > vnames.txt
 pickpos --amt=$VEHICLE_AMT --colors  > vcolors.txt
 
 #------------------------------------------------------------

@@ -22,7 +22,6 @@ Processconfig = ANTLER
   Run = pHostInfo       @ NewConsole = false
   Run = uFldShoreBroker @ NewConsole = false
   Run = uFldNodeComms   @ NewConsole = false
-	Run = pSpoofNode      @ NewConsole = false
 #ifdef AUTO_LAUNCHED yesd
   Run = uTimerScript    @ NewConsole = false
   Run = pMissionEval    @ NewConsole = false	
@@ -135,28 +134,6 @@ ProcessConfig = pMissionEval
   report_column = grade=$[GRADE]      
 }                                
 #endif
-	
-//--------------------------------------------------
-// pSpoofNode Config Block
-
-ProcessConfig = pSpoofNode
-{ 
-  AppTick    = 2
-  CommsTick  = 2
-
-	//app_logging = true
-  spoof = x=22,y=-52,vsource=ais,name=shaggy,spd=0,dur=22  
-	
-	refresh_interval = 1     
-  default_length   = 5       
-  default_vtype    = kayak    
-  default_vsource  = ais    
-  default_color    = green    
-	default_duration = 200
-  
-  default_hdg = 45             // Degrees, default=45           
-  default_spd = 2              // M/sec, default=0 
-}
 
 	
 //--------------------------------------------------

@@ -17,10 +17,10 @@ using namespace std;
 // Constructor
 
 BHV_Tether::BHV_Tether(IvPDomain domain) :
-  IvPBehavior(domain)
+  IvPContactBehavior(domain)
 {
   // Provide a default behavior name
-  IvPBehavior::setParam("name", "defaultname");
+  IvPContactBehavior::setParam("name", "defaultname");
 
   // Declare the behavior decision space
   m_domain = subDomain(m_domain, "course,speed");
@@ -34,6 +34,8 @@ BHV_Tether::BHV_Tether(IvPDomain domain) :
 
 bool BHV_Tether::setParam(string param, string val)
 {
+  if(IvPContactBehavior::setParam(param, val))
+    return(true);
   // Convert the parameter to lower case for more general matching
   param = tolower(param);
 
@@ -44,8 +46,9 @@ bool BHV_Tether::setParam(string param, string val)
     // Set local member variables here
     return(true);
   }
-  else if (param == "bar") {
-    // return(setBooleanOnString(m_my_bool, val));
+  else if (param == "leader") {
+    m_leader = val;
+    return(true);
   }
 
   // If not handled above, then just return false;
@@ -119,7 +122,7 @@ IvPFunction* BHV_Tether::onRunState()
   // Part 1: Build the IvP function
   IvPFunction *ipf = 0;
 
-
+  drawGraphics();
 
   // Part N: Prior to returning the IvP function, apply the priority wt
   // Actual weight applied may be some value different than the configured
@@ -130,3 +133,28 @@ IvPFunction* BHV_Tether::onRunState()
   return(ipf);
 }
 
+//---------------------------------------------------------------
+// Procedure: calculateOuterRing()
+//   Purpose: Use the pythagorean theorem to calculate horizontal distance
+
+float BHV_Tether::calculateOuterRing(){
+
+  float hypotenuse = m_tether_length;
+
+  // horizontal^2 = hypotenuse^2 - depth_delta^2 
+
+  return hypotenuse;
+}
+
+
+//---------------------------------------------------------------
+// Procedure: drawGraphics()
+//   Purpose: On each iteration, draw any visual indicators for pMarineViewer
+
+void BHV_Tether::drawGraphics(){
+
+  // outer circle message
+  string outer_circle = "x=" + to_string(m_cnx) + ",y=" + to_string(m_cny) + ",radius=10,edge_size=1,duration=1";
+
+  postRepeatableMessage("VIEW_CIRCLE", outer_circle);
+}

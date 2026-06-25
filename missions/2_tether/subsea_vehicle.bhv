@@ -92,3 +92,16 @@ Behavior = BHV_StationKeep
      visual_hints = vertex_size=0, edge_color=gray50, label_color=off
 }
 
+ //----------------------------------------------
+ Behavior=BHV_ConstantDepth
+ {
+  name           = depth_east
+  pwt            = 100
+  condition      = LOITER_REGION=east
+  condition      = DEPLOY=true
+  updates        = EAST_DEPTH_UPDATES
+  perpetual      = true
+  duration       = no-time-limit
+
+  depth          = 10
+ }

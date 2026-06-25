@@ -26,7 +26,7 @@ BHV_Tether::BHV_Tether(IvPDomain domain) :
   m_domain = subDomain(m_domain, "course,speed");
 
   // Add any variables this behavior needs to subscribe for
-  addInfoVars("NAV_X, NAV_Y");
+  addInfoVars("NAV_X, NAV_Y", "NODE_REPORT");
 }
 
 //---------------------------------------------------------------
@@ -119,9 +119,14 @@ void BHV_Tether::onRunToIdleState()
 
 IvPFunction* BHV_Tether::onRunState()
 {
+  bool ok_node_report;
+  
+  m_contact_node_report = getBufferStringVal("NODE_REPORT", ok_node_report);
+  m_contact_depth = m_contact_node_report.getDepth();
+
   // Part 1: Build the IvP function
   IvPFunction *ipf = 0;
-
+  
   drawGraphics();
 
   // Part N: Prior to returning the IvP function, apply the priority wt
@@ -154,7 +159,7 @@ float BHV_Tether::calculateOuterRing(){
 void BHV_Tether::drawGraphics(){
 
   // outer circle message
-  string outer_circle = "x=" + to_string(m_cnx) + ",y=" + to_string(m_cny) + ",radius=10,edge_size=1,duration=1";
+  string outer_circle = "x=" + to_string(m_cnx) + ",y=" + to_string(m_cny) + ",radius=10,edge_size=1,duration=1,label=rov@"+to_string(m_contact_depth);
 
   postRepeatableMessage("VIEW_CIRCLE", outer_circle);
 }

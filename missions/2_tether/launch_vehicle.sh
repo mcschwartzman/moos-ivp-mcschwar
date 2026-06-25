@@ -189,7 +189,22 @@ if [ "${AUTO_LAUNCHED}" = "no" ]; then
     NSFLAGS="--interactive --force"
 fi
 
-nsplug meta_vehicle.moos targ_$VNAME.moos $NSFLAGS WARP=$TIME_WARP \
+if [ "${VNAME}" = "asv" ]; then
+    META_FILE="surface_vehicle.moos"
+    nsplug surface_vehicle.bhv targ_asv.bhv $NSFLAGS  \
+        START_POS=$START_POS         VNAME=asv  \
+        STOCK_SPD=$STOCK_SPD         MMOD=$MMOD    \
+        DEST_POS=$DEST_POS
+
+else
+    META_FILE="subsea_vehicle.moos"
+    nsplug subsea_vehicle.bhv targ_rov.bhv $NSFLAGS  \
+        START_POS=$START_POS         VNAME=rov  \
+        STOCK_SPD=$STOCK_SPD         MMOD=$MMOD    \
+        DEST_POS=$DEST_POS
+fi
+
+nsplug $META_FILE targ_$VNAME.moos $NSFLAGS WARP=$TIME_WARP \
        IP_ADDR=$IP_ADDR             MOOS_PORT=$MOOS_PORT \
        PSHARE_PORT=$PSHARE_PORT     SHORE_IP=$SHORE_IP   \
        SHORE_PSHARE=$SHORE_PSHARE   VNAME=$VNAME         \
@@ -198,19 +213,6 @@ nsplug meta_vehicle.moos targ_$VNAME.moos $NSFLAGS WARP=$TIME_WARP \
        MMOD=$MMOD                                        \
        VSOURCE=$VSOURCE                                  \
        FSEAT_IP=$FSEAT_IP
-
-if [ "${VNAME}" = "asv" ]; then
-    nsplug surface_vehicle.bhv targ_asv.bhv $NSFLAGS  \
-        START_POS=$START_POS         VNAME=asv  \
-        STOCK_SPD=$STOCK_SPD         MMOD=$MMOD    \
-        DEST_POS=$DEST_POS
-
-else
-    nsplug subsea_vehicle.bhv targ_rov.bhv $NSFLAGS  \
-        START_POS=$START_POS         VNAME=rov  \
-        STOCK_SPD=$STOCK_SPD         MMOD=$MMOD    \
-        DEST_POS=$DEST_POS
-fi
 
 if [ "${JUST_MAKE}" = "yes" ]; then
     echo "Targ files made; exiting without launch."

@@ -10,6 +10,7 @@
 
 #include <string>
 #include "IvPContactBehavior.h"
+#include "NodeRecordUtils.h"
 
 class BHV_Tether : public IvPContactBehavior {
 public:
@@ -26,6 +27,9 @@ public:
   void         onIdleToRunState();
   void         drawGraphics();
   float        calculateOuterRing();
+
+  NodeRecord m_contact_node_report;
+  float m_contact_depth;
   IvPFunction* onRunState();
 
 protected: // Local Utility functions

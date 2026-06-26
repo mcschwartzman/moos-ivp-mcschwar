@@ -97,9 +97,8 @@ Behavior = BHV_StationKeep
  {
   name           = depth_east
   pwt            = 100
-  condition      = LOITER_REGION=east
   condition      = DEPLOY=true
-  updates        = EAST_DEPTH_UPDATES
+  updates        = DEPTH_UPDATES
   perpetual      = true
   duration       = no-time-limit
 

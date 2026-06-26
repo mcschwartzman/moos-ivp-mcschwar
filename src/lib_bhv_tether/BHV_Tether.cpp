@@ -121,8 +121,10 @@ IvPFunction* BHV_Tether::onRunState()
 {
   bool ok_node_report;
   
-  m_contact_node_report = getBufferStringVal("NODE_REPORT", ok_node_report);
+  m_contact_node_report = string2NodeRecord(getBufferStringVal("NODE_REPORT", ok_node_report));
   m_contact_depth = m_contact_node_report.getDepth();
+
+  postRepeatableMessage("TETHER_DEPTH", m_contact_depth);
 
   // Part 1: Build the IvP function
   IvPFunction *ipf = 0;
@@ -159,7 +161,7 @@ float BHV_Tether::calculateOuterRing(){
 void BHV_Tether::drawGraphics(){
 
   // outer circle message
-  string outer_circle = "x=" + to_string(m_cnx) + ",y=" + to_string(m_cny) + ",radius=10,edge_size=1,duration=1,label=rov@"+to_string(m_contact_depth);
+  string outer_circle = "x=" + to_string(m_cnx) + ",y=" + to_string(m_cny) + ",radius=10,edge_size=1,duration=0.1,label=rov@"+to_string(m_contact_depth);
 
   postRepeatableMessage("VIEW_CIRCLE", outer_circle);
 }

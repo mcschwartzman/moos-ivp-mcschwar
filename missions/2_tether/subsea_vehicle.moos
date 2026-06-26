@@ -188,7 +188,7 @@ ProcessConfig = pMarinePIDV22
   CommsTick  = 10
 
   verbose       = true
-  depth_control = false
+  depth_control = true
   active_start  = true
   
   // Yaw PID controller
@@ -196,6 +196,21 @@ ProcessConfig = pMarinePIDV22
   yaw_pid_kd             = 0.1
   yaw_pid_ki             = 0.3
   yaw_pid_integral_limit = 0.07
+
+  // Pitch PID Controller
+  pitch_pid_kp              = 1.5
+  pitch_pid_kd              = 0.3
+  pitch_pid_ki              = 0.004
+  pitch_pid_integral_limit  = 0
+
+  // ZPID Controller
+  z_to_pitch_pid_kp              = 0.12
+  z_to_pitch_pid_kd              = 0.1
+  z_to_pitch_pid_ki              = 0.004
+  z_to_pitch_pid_integral_limit = 0.05
+
+  maxpitch    = 15
+  maxelevator = 13
   
   // Speed PID controller
   speed_pid_kp           = 1.0

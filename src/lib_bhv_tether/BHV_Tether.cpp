@@ -11,6 +11,8 @@
 #include "BuildUtils.h"
 #include "BHV_Tether.h"
 #include <math.h>
+#include "ZAIC_PEAK.h"
+#include "AngleUtils.h"
 
 using namespace std;
 
@@ -128,7 +130,10 @@ void BHV_Tether::onRunToIdleState()
 
 IvPFunction* BHV_Tether::onRunState()
 {
-  bool ok_node_report, ok_os_depth;
+  bool ok_node_report, ok_os_depth, ok_os_x, ok_os_y;
+
+  m_osx = getBufferDoubleVal("NAV_X", ok_os_x);
+  m_osy = getBufferDoubleVal("NAV_Y", ok_os_y);
   
   m_contact_node_report = string2NodeRecord(getBufferStringVal("NODE_REPORT", ok_node_report));
   m_contact_depth = m_contact_node_report.getDepth();
@@ -137,8 +142,8 @@ IvPFunction* BHV_Tether::onRunState()
   postRepeatableMessage("TETHER_DEPTH", m_contact_depth);
 
   // Part 1: Build the IvP function
-  IvPFunction *ipf = 0;
-  
+  IvPFunction *ipf = buildFunctionWithZAIC();
+
   m_outer_ring = calculateOuterRing();
   m_ideal_ring = calculateIdeal();
   drawGraphics();
@@ -191,4 +196,34 @@ void BHV_Tether::drawGraphics(){
   postRepeatableMessage("VIEW_CIRCLE", inner_circle);
   postRepeatableMessage("VIEW_CIRCLE", outer_circle);
   postRepeatableMessage("VIEW_CIRCLE", ideal_circle);
+}
+
+//---------------------------------------------------------------
+// Procedure: buildFunctionWithZAIC()
+//   Purpose: Build the ivp function simply using the ideal radius
+//      TODO: Take into account direction of travel of ROV
+
+IvPFunction *BHV_Tether::buildFunctionWithZAIC() {
+
+  double contact_x = m_contact_node_report.getX();
+  double contact_y = m_contact_node_report.getY();
+
+  double rel_ang = relAng(m_osx, m_osy, contact_x, contact_y);
+  rel_ang = angle360(rel_ang);
+  ZAIC_PEAK crs_zaic(m_domain, "course");
+  crs_zaic.setSummit(rel_ang);
+  crs_zaic.setPeakWidth(0);
+  crs_zaic.setBaseWidth(180.0);
+  crs_zaic.setSummitDelta(0);
+  crs_zaic.setValueWrap(true);
+
+  if(crs_zaic.stateOK() == false) {
+    string warnings = "Course ZAIC problems " + crs_zaic.getWarnings();
+    postWMessage(warnings);
+    return(0);
+  }
+
+  IvPFunction *crs_ipf = crs_zaic.extractIvPFunction();
+
+  return(crs_ipf);
 }

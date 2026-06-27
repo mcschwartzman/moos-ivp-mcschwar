@@ -28,6 +28,7 @@ public:
   void         drawGraphics();
   double       calculateOuterRing();
   double       calculateIdeal();
+  IvPFunction* buildFunctionWithZAIC();
 
   NodeRecord m_contact_node_report;
   IvPFunction* onRunState();
@@ -45,6 +46,8 @@ protected: // State variables
     double m_contact_depth = 10; // meters
     double m_ownship_depth = 0;
     double m_outer_ring = m_tether_length;
+    double m_osx;
+    double m_osy;
 };
 
 #define IVP_EXPORT_FUNCTION

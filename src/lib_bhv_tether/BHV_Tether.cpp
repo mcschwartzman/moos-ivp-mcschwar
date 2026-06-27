@@ -10,6 +10,7 @@
 #include "MBUtils.h"
 #include "BuildUtils.h"
 #include "BHV_Tether.h"
+#include <math.h>
 
 using namespace std;
 
@@ -26,7 +27,7 @@ BHV_Tether::BHV_Tether(IvPDomain domain) :
   m_domain = subDomain(m_domain, "course,speed");
 
   // Add any variables this behavior needs to subscribe for
-  addInfoVars("NAV_X, NAV_Y", "NODE_REPORT");
+  addInfoVars("NAV_X, NAV_Y, NAV_DEPTH, NODE_REPORT");
 }
 
 //---------------------------------------------------------------
@@ -44,6 +45,14 @@ bool BHV_Tether::setParam(string param, string val)
   
   if((param == "foo") && isNumber(val)) {
     // Set local member variables here
+    return(true);
+  }
+  else if ((param == "tether_length") && isNumber(val)) {
+    m_tether_length = double_val;
+    return(true);
+  }
+  else if ((param == "inner_limit") && isNumber(val)) {
+    m_inner_ring = double_val;
     return(true);
   }
   else if (param == "leader") {
@@ -119,16 +128,19 @@ void BHV_Tether::onRunToIdleState()
 
 IvPFunction* BHV_Tether::onRunState()
 {
-  bool ok_node_report;
+  bool ok_node_report, ok_os_depth;
   
   m_contact_node_report = string2NodeRecord(getBufferStringVal("NODE_REPORT", ok_node_report));
   m_contact_depth = m_contact_node_report.getDepth();
+  m_ownship_depth = getBufferDoubleVal("NAV_DEPTH", ok_os_depth);
 
   postRepeatableMessage("TETHER_DEPTH", m_contact_depth);
 
   // Part 1: Build the IvP function
   IvPFunction *ipf = 0;
   
+  m_outer_ring = calculateOuterRing();
+  m_ideal_ring = calculateIdeal();
   drawGraphics();
 
   // Part N: Prior to returning the IvP function, apply the priority wt
@@ -142,15 +154,27 @@ IvPFunction* BHV_Tether::onRunState()
 
 //---------------------------------------------------------------
 // Procedure: calculateOuterRing()
-//   Purpose: Use the pythagorean theorem to calculate horizontal distance
+//   Purpose: Use the pythagorean theorem to calculate max horizontal distance
 
-float BHV_Tether::calculateOuterRing(){
+double BHV_Tether::calculateOuterRing(){
 
-  float hypotenuse = m_tether_length;
+  double hypotenuse = m_tether_length;
+  double depth_delta = m_contact_depth - m_ownship_depth;
 
-  // horizontal^2 = hypotenuse^2 - depth_delta^2 
+  double outer = sqrt((hypotenuse * hypotenuse) - (depth_delta * depth_delta));
 
-  return hypotenuse;
+  return outer;
+}
+
+//---------------------------------------------------------------
+// Procedure: calculateOuterRing()
+//   Purpose: Use the pythagorean theorem to calculate max horizontal distance
+
+double BHV_Tether::calculateIdeal(){
+
+  double ideal = m_inner_ring + ((m_outer_ring - m_inner_ring) / 2);
+
+  return ideal;
 }
 
 
@@ -160,8 +184,11 @@ float BHV_Tether::calculateOuterRing(){
 
 void BHV_Tether::drawGraphics(){
 
-  // outer circle message
-  string outer_circle = "x=" + to_string(m_cnx) + ",y=" + to_string(m_cny) + ",radius=10,edge_size=1,duration=0.1,label=rov@"+to_string(m_contact_depth);
+  string inner_circle = "x=" + to_string(m_cnx) + ",y=" + to_string(m_cny) + ",radius=" + to_string(m_inner_ring) +  ",edge_size=1,duration=0.1,label=inner";
+  string outer_circle = "x=" + to_string(m_cnx) + ",y=" + to_string(m_cny) + ",radius=" + to_string(m_outer_ring) +  ",edge_size=1,duration=0.1,label=rov@"+to_string(m_contact_depth);
+  string ideal_circle = "x=" + to_string(m_cnx) + ",y=" + to_string(m_cny) + ",radius=" + to_string(m_ideal_ring) +  ",edge_size=1,duration=0.1,label=ideal,color=teal";
 
+  postRepeatableMessage("VIEW_CIRCLE", inner_circle);
   postRepeatableMessage("VIEW_CIRCLE", outer_circle);
+  postRepeatableMessage("VIEW_CIRCLE", ideal_circle);
 }

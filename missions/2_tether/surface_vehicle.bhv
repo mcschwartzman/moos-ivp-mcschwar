@@ -37,7 +37,9 @@ Behavior = BHV_Tether
   updates   = TETHER_UPDATE
   perpetual = true
 
-  contact   = rov
+  contact       = rov
+  tether_length = 30
+  inner_limit   = 10
 }
 
 //----------------------------------------------

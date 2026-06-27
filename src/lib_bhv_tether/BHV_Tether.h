@@ -26,10 +26,10 @@ public:
   void         onRunToIdleState();
   void         onIdleToRunState();
   void         drawGraphics();
-  float        calculateOuterRing();
+  double       calculateOuterRing();
+  double       calculateIdeal();
 
   NodeRecord m_contact_node_report;
-  float m_contact_depth;
   IvPFunction* onRunState();
 
 protected: // Local Utility functions
@@ -37,9 +37,14 @@ protected: // Local Utility functions
 protected: // Configuration parameters
   std::string m_leader;
   
-  float m_tether_length = 10; // in meters
+  double m_tether_length = 30; // in meters
+  double m_inner_ring    = 10;
+  double m_ideal_ring    = 20;
 
 protected: // State variables
+    double m_contact_depth = 10; // meters
+    double m_ownship_depth = 0;
+    double m_outer_ring = m_tether_length;
 };
 
 #define IVP_EXPORT_FUNCTION

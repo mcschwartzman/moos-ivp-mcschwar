@@ -41,13 +41,14 @@ protected: // Configuration parameters
   double m_tether_length = 30; // in meters
   double m_inner_ring    = 10;
   double m_ideal_ring    = 20;
+  double m_max_speed     = 6;
 
 protected: // State variables
-    double m_contact_depth = 10; // meters
-    double m_ownship_depth = 0;
-    double m_outer_ring = m_tether_length;
-    double m_osx;
-    double m_osy;
+  double m_contact_depth = 10; // meters
+  double m_ownship_depth = 0;
+  double m_outer_ring = m_tether_length;
+  double m_osx;
+  double m_osy;
 };
 
 #define IVP_EXPORT_FUNCTION

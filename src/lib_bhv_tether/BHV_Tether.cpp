@@ -13,6 +13,8 @@
 #include <math.h>
 #include "ZAIC_PEAK.h"
 #include "AngleUtils.h"
+#include "GeomUtils.h"
+#include "OF_Coupler.h"
 
 using namespace std;
 
@@ -207,8 +209,9 @@ IvPFunction *BHV_Tether::buildFunctionWithZAIC() {
 
   double contact_x = m_contact_node_report.getX();
   double contact_y = m_contact_node_report.getY();
-
   double rel_ang = relAng(m_osx, m_osy, contact_x, contact_y);
+
+  // generate course ipf
   rel_ang = angle360(rel_ang);
   ZAIC_PEAK crs_zaic(m_domain, "course");
   crs_zaic.setSummit(rel_ang);
@@ -222,8 +225,22 @@ IvPFunction *BHV_Tether::buildFunctionWithZAIC() {
     postWMessage(warnings);
     return(0);
   }
-
   IvPFunction *crs_ipf = crs_zaic.extractIvPFunction();
 
-  return(crs_ipf);
+  // generate speed ipf
+  double distance_to_leader = distPointToPoint(m_osx, m_osy, contact_x, contact_y);
+  bool outside_outer = (distance_to_leader > m_outer_ring);
+  
+  ZAIC_PEAK spd_zaic(m_domain, "speed");
+
+  spd_zaic.setSummit(6);
+  spd_zaic.setPeakWidth(0.1);
+  spd_zaic.setBaseWidth(2.0);
+  spd_zaic.setSummitDelta(50.0);
+
+  IvPFunction *spd_ipf = spd_zaic.extractIvPFunction();
+
+  OF_Coupler coupler;
+
+  return(coupler.couple(crs_ipf, spd_ipf));
 }

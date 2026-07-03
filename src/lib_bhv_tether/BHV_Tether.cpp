@@ -47,8 +47,9 @@ bool BHV_Tether::setParam(string param, string val)
   // Get the numerical value of the param argument for convenience once
   double double_val = atof(val.c_str());
   
-  if((param == "foo") && isNumber(val)) {
+  if((param == "max_speed") && isNumber(val)) {
     // Set local member variables here
+    m_max_speed = double_val;
     return(true);
   }
   else if ((param == "tether_length") && isNumber(val)) {
@@ -211,6 +212,29 @@ IvPFunction *BHV_Tether::buildFunctionWithZAIC() {
   double contact_y = m_contact_node_report.getY();
   double rel_ang = relAng(m_osx, m_osy, contact_x, contact_y);
 
+  // calculate state
+  double distance_to_leader = distPointToPoint(m_osx, m_osy, contact_x, contact_y);
+  bool inside_outer = (distance_to_leader < m_outer_ring);
+  bool inside_ideal = (distance_to_leader < m_ideal_ring);
+  double error = std::abs(distance_to_leader - m_ideal_ring);
+  double max_error = m_outer_ring - m_ideal_ring;
+
+  if (inside_outer) {
+    m_speed_summit = (error * m_max_speed) / max_error;
+    if (!inside_ideal){
+      postRepeatableMessage("TETHER_STATUS", "within outer ring, spd: " + to_string(m_speed_summit)); 
+    }
+    else {
+      rel_ang = rel_ang + 180;
+    }
+  }
+  else {
+    m_speed_summit = m_max_speed;
+  }
+
+  postRepeatableMessage("TETHER_SPEED", m_speed_summit);
+
+
   // generate course ipf
   rel_ang = angle360(rel_ang);
   ZAIC_PEAK crs_zaic(m_domain, "course");
@@ -227,13 +251,11 @@ IvPFunction *BHV_Tether::buildFunctionWithZAIC() {
   }
   IvPFunction *crs_ipf = crs_zaic.extractIvPFunction();
 
+
   // generate speed ipf
-  double distance_to_leader = distPointToPoint(m_osx, m_osy, contact_x, contact_y);
-  bool outside_outer = (distance_to_leader > m_outer_ring);
-  
   ZAIC_PEAK spd_zaic(m_domain, "speed");
 
-  spd_zaic.setSummit(6);
+  spd_zaic.setSummit(m_speed_summit);
   spd_zaic.setPeakWidth(0.1);
   spd_zaic.setBaseWidth(2.0);
   spd_zaic.setSummitDelta(50.0);

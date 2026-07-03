@@ -49,6 +49,7 @@ protected: // State variables
   double m_outer_ring = m_tether_length;
   double m_osx;
   double m_osy;
+  double m_speed_summit = m_max_speed;
 };
 
 #define IVP_EXPORT_FUNCTION

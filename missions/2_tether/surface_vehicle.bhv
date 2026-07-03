@@ -38,8 +38,9 @@ Behavior = BHV_Tether
   perpetual = true
 
   contact       = rov
-  tether_length = 30
+  tether_length = 50
   inner_limit   = 10
+  max_speed     = 6
 }
 
 //----------------------------------------------

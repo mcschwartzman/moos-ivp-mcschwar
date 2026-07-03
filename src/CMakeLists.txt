@@ -25,6 +25,7 @@ ADD_SUBDIRECTORY(pOdometry)
 ADD_SUBDIRECTORY(pPointAssign)
 ADD_SUBDIRECTORY(pGenPath)
 ADD_SUBDIRECTORY(pGenRescue)
+ADD_SUBDIRECTORY(uWatchTether)
 
 ##############################################################################
 #                           END of CMakeLists.txt

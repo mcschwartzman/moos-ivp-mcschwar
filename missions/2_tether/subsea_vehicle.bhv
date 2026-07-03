@@ -102,5 +102,5 @@ Behavior = BHV_StationKeep
   perpetual      = true
   duration       = no-time-limit
 
-  depth          = 25
+  depth          = 100
  }

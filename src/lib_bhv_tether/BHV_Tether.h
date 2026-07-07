@@ -50,6 +50,9 @@ protected: // State variables
   double m_osx;
   double m_osy;
   double m_speed_summit = m_max_speed;
+  
+  int m_tether_snaps = 0;
+  int m_tether_hockles = 0;
 };
 
 #define IVP_EXPORT_FUNCTION

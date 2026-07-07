@@ -31,6 +31,11 @@ class WatchTether : public AppCastingMOOSApp
  private: // Configuration variables
 
  private: // State variables
+  double m_tether_length = 0;
+  double m_tether_depth = 0;
+  
+  int m_tether_snaps = 0;
+  int m_tether_hockles = 0;
 };
 
 #endif 

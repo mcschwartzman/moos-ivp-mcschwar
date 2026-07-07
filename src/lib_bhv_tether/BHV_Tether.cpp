@@ -142,7 +142,10 @@ IvPFunction* BHV_Tether::onRunState()
   m_contact_depth = m_contact_node_report.getDepth();
   m_ownship_depth = getBufferDoubleVal("NAV_DEPTH", ok_os_depth);
 
+  postRepeatableMessage("TETHER_LENGTH", m_tether_length);
   postRepeatableMessage("TETHER_DEPTH", m_contact_depth);
+  postRepeatableMessage("TETHER_SNAPS", m_tether_snaps);
+  postRepeatableMessage("TETHER_HOCKLES", m_tether_hockles);
 
   // Part 1: Build the IvP function
   IvPFunction *ipf = buildFunctionWithZAIC();
@@ -214,8 +217,11 @@ IvPFunction *BHV_Tether::buildFunctionWithZAIC() {
 
   // calculate state
   double distance_to_leader = distPointToPoint(m_osx, m_osy, contact_x, contact_y);
+
   bool inside_outer = (distance_to_leader < m_outer_ring);
   bool inside_ideal = (distance_to_leader < m_ideal_ring);
+  bool inside_inner = (distance_to_leader < m_inner_ring);
+
   double error = std::abs(distance_to_leader - m_ideal_ring);
   double max_error = m_outer_ring - m_ideal_ring;
 
@@ -230,6 +236,7 @@ IvPFunction *BHV_Tether::buildFunctionWithZAIC() {
   }
   else {
     m_speed_summit = m_max_speed;
+    m_tether_snaps++;
   }
 
   postRepeatableMessage("TETHER_SPEED", m_speed_summit);

@@ -40,7 +40,6 @@ bool WatchTether::OnNewMail(MOOSMSG_LIST &NewMail)
 
 #if 0 // Keep these around just for template
     string comm  = msg.GetCommunity();
-    double dval  = msg.GetDouble();
     string sval  = msg.GetString(); 
     string msrc  = msg.GetSource();
     double mtime = msg.GetTime();
@@ -48,8 +47,27 @@ bool WatchTether::OnNewMail(MOOSMSG_LIST &NewMail)
     bool   mstr  = msg.IsString();
 #endif
 
-     if(key == "FOO") 
-       cout << "great!";
+     if(key == "TETHER_LENGTH"){
+      double dval  = msg.GetDouble();
+      m_tether_length = dval;
+     } 
+     
+     else if(key == "TETHER_DEPTH"){
+      int dval  = msg.GetDouble();
+      m_tether_depth = dval;
+     } 
+
+     else if(key == "TETHER_SNAPS"){
+      int ival  = int(msg.GetDouble());
+      m_tether_snaps = ival;
+     } 
+
+     else if(key == "TETHER_HOCKLES"){
+      double ival  = int(msg.GetDouble());
+      m_tether_hockles = ival;
+     } 
+
+
 
      else if(key != "APPCAST_REQ") // handled by AppCastingMOOSApp
        reportRunWarning("Unhandled Mail: " + key);
@@ -122,7 +140,10 @@ bool WatchTether::OnStartUp()
 void WatchTether::registerVariables()
 {
   AppCastingMOOSApp::RegisterVariables();
-  // Register("FOOBAR", 0);
+  Register("TETHER_LENGTH", 0);
+  Register("TETHER_DEPTH", 0);
+  Register("TETHER_SNAPS", 0);
+  Register("TETHER_HOCKLES", 0);
 }
 
 
@@ -136,9 +157,9 @@ bool WatchTether::buildReport()
   m_msgs << "============================================" << endl;
 
   ACTable actab(4);
-  actab << "Alpha | Bravo | Charlie | Delta";
+  actab << "Tether Length | Tether Depth | Snaps | Hockles";
   actab.addHeaderLines();
-  actab << "one" << "two" << "three" << "four";
+  actab << to_string(m_tether_length) << to_string(m_tether_depth) << to_string(m_tether_snaps) << to_string(m_tether_hockles);
   m_msgs << actab.getFormattedString();
 
   return(true);

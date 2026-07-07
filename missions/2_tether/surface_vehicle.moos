@@ -147,6 +147,10 @@ ProcessConfig = uFldNodeBroker
 
   bridge = src=NODE_REPORT_LOCAL,  alias=NODE_REPORT
   bridge = src=NODE_MESSAGE_LOCAL, alias=NODE_MESSAGE
+  bridge = src=TETHER_LENGTH, alias=TETHER_LENGTH
+  bridge = src=TETHER_DEPTH, alias=TETHER_DEPTH
+  bridge = src=TETHER_SNAPS, alias=TETHER_SNAPS
+  bridge = src=TETHER_HOCKLES, alias=TETHER_HOCKLES
 }
 
 //--------------------------------------------------

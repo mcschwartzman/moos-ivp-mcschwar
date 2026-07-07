@@ -22,6 +22,7 @@ Processconfig = ANTLER
   Run = pHostInfo       @ NewConsole = false
   Run = uFldShoreBroker @ NewConsole = false
   Run = uFldNodeComms   @ NewConsole = false
+  Run = uWatchTether    @ NewConsole = false
 #ifdef AUTO_LAUNCHED yesd
   Run = uTimerScript    @ NewConsole = false
   Run = pMissionEval    @ NewConsole = false	
@@ -292,3 +293,9 @@ ProcessConfig = pMarineViewer
   button_10 = BEN-ONX  # XYZ_ENABLE_TARGET_ABE=ben
 }
 
+//--------------------------------------------------------
+ProcessConfig = uWatchTether
+{
+  AppTick    = 4
+  CommsTick  = 4
+}

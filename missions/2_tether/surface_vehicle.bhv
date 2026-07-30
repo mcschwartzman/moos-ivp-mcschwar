@@ -82,3 +82,11 @@ Behavior = BHV_StationKeep
      visual_hints = vertex_size=0, edge_color=gray50, label_color=off
 }
 
+//----------------------------------------------
+Behavior = BHV_Shadow
+{
+  name          = shadow-rov
+  contact       = rov
+  pwt           = 75
+  condition     = MODE == TRANSITING
+}

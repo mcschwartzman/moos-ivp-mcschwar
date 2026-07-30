@@ -196,12 +196,12 @@ double BHV_Tether::calculateIdeal(){
 void BHV_Tether::drawGraphics(){
 
   string inner_circle = "x=" + to_string(m_cnx) + ",y=" + to_string(m_cny) + ",radius=" + to_string(m_inner_ring) +  ",edge_size=1,duration=0.1,label=inner";
-  string outer_circle = "x=" + to_string(m_cnx) + ",y=" + to_string(m_cny) + ",radius=" + to_string(m_outer_ring) +  ",edge_size=1,duration=0.1,label=rov@"+to_string(m_contact_depth);
+  string outer_circle = "x=" + to_string(m_cnx) + ",y=" + to_string(m_cny) + ",radius=" + to_string(m_outer_ring) +  ",edge_size=1,duration=0.1,label=rov@";
   string ideal_circle = "x=" + to_string(m_cnx) + ",y=" + to_string(m_cny) + ",radius=" + to_string(m_ideal_ring) +  ",edge_size=1,duration=0.1,label=ideal,color=teal";
 
   postRepeatableMessage("VIEW_CIRCLE", inner_circle);
   postRepeatableMessage("VIEW_CIRCLE", outer_circle);
-  postRepeatableMessage("VIEW_CIRCLE", ideal_circle);
+  // postRepeatableMessage("VIEW_CIRCLE", ideal_circle);
 }
 
 //---------------------------------------------------------------
@@ -232,6 +232,9 @@ IvPFunction *BHV_Tether::buildFunctionWithZAIC() {
     }
     else {
       rel_ang = rel_ang + 180;
+      if (inside_inner){
+        m_tether_hockles++;
+      }
     }
   }
   else {

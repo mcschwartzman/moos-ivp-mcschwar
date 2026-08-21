@@ -201,7 +201,7 @@ void BHV_Tether::drawGraphics(){
 
   postRepeatableMessage("VIEW_CIRCLE", inner_circle);
   postRepeatableMessage("VIEW_CIRCLE", outer_circle);
-  // postRepeatableMessage("VIEW_CIRCLE", ideal_circle);
+  postRepeatableMessage("VIEW_CIRCLE", ideal_circle);
 }
 
 //---------------------------------------------------------------
@@ -225,6 +225,8 @@ IvPFunction *BHV_Tether::buildFunctionWithZAIC() {
   double error = std::abs(distance_to_leader - m_ideal_ring);
   double max_error = m_outer_ring - m_ideal_ring;
 
+  // quadratic priority calculation
+  m_priority_wt = (error * error * 100) / max_error;
   if (inside_outer) {
     m_speed_summit = (error * m_max_speed) / max_error;
     if (!inside_ideal){

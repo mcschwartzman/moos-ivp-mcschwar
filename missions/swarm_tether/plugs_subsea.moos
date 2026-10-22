@@ -1,0 +1,71 @@
+<tag><origin_warp>
+MOOSTimeWarp = $(WARP)
+LatOrigin  = 43.825300 
+LongOrigin = -70.330400 
+
+<tag><pHostInfo>
+//--------------------------------------------------
+// pHostInfo Config Block
+
+ProcessConfig = pHostInfo
+{
+  AppTick 	= 1
+  CommsTick = 1
+
+  default_hostip_force = $(IP_ADDR=localhost)
+}
+
+<tag><pShare>
+//--------------------------------------------------
+// pShare Config Block
+
+ProcessConfig = pShare
+{
+  AppTick    = 2
+  CommsTick  = 2
+
+  input = route =  localhost:$(PSHARE_PORT), white_list=DEPLOY & MOOS_MANUAL_OVERRIDE & NODE_BROKER_ACK & APPCAST_REQ 
+}
+
+<tag><uProcessWatch>
+//--------------------------------------------------
+// uProcessWatch Config Block
+
+ProcessConfig = uProcessWatch
+{
+  AppTick   = 1
+  CommsTick = 1
+
+  allow_retractions = true
+  
+  watch_all = true      // default is true
+  nowatch = uMAC*
+  nowatch = uXMS*
+  nowatch = uPokeDB*
+  nowatch = uQueryDB*
+
+  summary_wait = 12
+}
+
+
+<tag><uSimMarine>
+//------------------------------------------------------
+// uSimMarineV22 Config Block
+
+ProcessConfig = uSimMarineV22
+{
+  AppTick   = 10
+  CommsTick = 10
+
+  start_pos = $(START_POS), 0
+  prefix    = NAV
+  turn_rate = 95
+  thrust_map= 0:0, 20:1, 40:2, 60:3, 80:4, 100:5
+  turn_spd_loss = 0.4
+
+  buoyancy_rate = 0.15
+  max_depth_rate = 5
+  max_depth_rate_speed = 2.0
+  default_water_depth = 400
+}
+
